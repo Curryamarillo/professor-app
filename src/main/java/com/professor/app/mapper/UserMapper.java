@@ -1,6 +1,6 @@
 package com.professor.app.mapper;
 
-import com.professor.app.dto.UserResponseDTO;
+import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.entities.User;
 
 public class UserMapper {

@@ -1,4 +1,4 @@
-package com.professor.app.dto;
+package com.professor.app.dto.users;
 
 import com.professor.app.roles.Role;
 
