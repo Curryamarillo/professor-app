@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -48,21 +47,15 @@ public class UserService {
     }
 
     public String updatePassword(String id, String oldPassword, String newPassword) {
-        Optional<User> existUser = userRepository.findById(id);
-        if (existUser.isEmpty()) {
-            throw new UserNotFoundException("User with id: " + id + " not found");
-        } else {
-            User user = existUser.get();
-            String passwordToMatch = user.getPassword();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-            if (!Objects.equals(oldPassword, passwordToMatch)) {
-                throw new IllegalArgumentException("Old password does not match");
-            }
-            user.setPassword(newPassword);
-            userRepository.save(user);
-
-            return "User with id: " + id + " password updated successfully";
+        if (!oldPassword.equals(user.getPassword())) {
+            throw  new IllegalArgumentException("Invalid credentials");
         }
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        return "Password updated successfully";
     }
 
     public String deleteUser(String id) {

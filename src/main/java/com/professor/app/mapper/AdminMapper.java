@@ -2,6 +2,7 @@ package com.professor.app.mapper;
 
 import com.professor.app.dto.users.AdminRequestDTO;
 import com.professor.app.entities.Admin;
+import com.professor.app.roles.Role;
 
 public class AdminMapper {
 

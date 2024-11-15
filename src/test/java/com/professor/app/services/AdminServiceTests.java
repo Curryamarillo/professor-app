@@ -1,6 +1,7 @@
 package com.professor.app.services;
 
 import com.professor.app.dto.users.AdminRequestDTO;
+import com.professor.app.dto.users.AdminUpdateRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.entities.Student;
@@ -116,7 +117,7 @@ public class AdminServiceTests {
     }
     @Test
     @DisplayName("Should throw UserAlreadyExistsException when email already exists")
-    public void saveAdminUser_ShouldThrowUserAlreadyExistsException_WhenEmailAlreadyExists() {
+    public void saveAdminUserShouldThrowUserAlreadyExistsException_WhenEmailAlreadyExists() {
         String email = "campeon10@gmail.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(adminUser1));
 
@@ -128,7 +129,7 @@ public class AdminServiceTests {
     }
     @Test
     @DisplayName("Should throw UserAlreadyExistsException when the user already exists")
-    public void saveAdminUser_ShouldThrowUserAlreadyExistsException_WhenUserExists() {
+    public void saveAdminUserShouldThrowUserAlreadyExistsExceptionWhenUserExists() {
         String email = "campeon10@gmail.com";
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(adminUser1));
@@ -145,14 +146,14 @@ public class AdminServiceTests {
     }
     @Test
     @DisplayName("Should throw UserNotFoundException when the user is not found")
-    public void updateAdminUser_ShouldThrowUserNotFoundException_WhenUserDoesNotExist() {
+    public void updateAdminUserShouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
         String userId = "10000";
-        AdminRequestDTO adminRequestDTO = new AdminRequestDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com", "updatedPassword", "10000", "Updated Comment");
+        AdminUpdateRequestDTO adminUpdateRequestDTO = new AdminUpdateRequestDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com", "100055");
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            adminService.updateAdminUser(userId, adminRequestDTO);
+            adminService.updateAdminUser(userId, adminUpdateRequestDTO);
         });
 
         assertEquals("User with email: updatedEmail@gmail.com not exists", exception.getMessage());
@@ -161,7 +162,7 @@ public class AdminServiceTests {
     @DisplayName("Should update the user successfully when user exists")
     public void updateAdminUser_ShouldUpdateUser_WhenUserExists() {
         String userId = "10000";
-        AdminRequestDTO adminRequestDTO = new AdminRequestDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com", "updatedPassword", "10000", "Updated Comment");
+        AdminUpdateRequestDTO adminRequestDTO = new AdminUpdateRequestDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com",  "10000");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser1));
         when(userRepository.save(any(User.class))).thenReturn(adminUser1);

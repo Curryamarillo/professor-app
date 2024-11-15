@@ -1,9 +1,9 @@
 package com.professor.app.controllers;
 
 import com.professor.app.dto.users.AdminRequestDTO;
+import com.professor.app.dto.users.AdminUpdateRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.services.AdminService;
-import com.professor.app.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,5 +24,16 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateAdminUser(@PathVariable String id,
+                                                  @RequestBody AdminUpdateRequestDTO requestDTO) {
+        String result = adminService.updateAdminUser(id, requestDTO);
+        return ResponseEntity.ok(result);
+    }
+    @PatchMapping("/update/comments/{id}")
+    public ResponseEntity<String> updateComments(@PathVariable String id,
+                                                 @RequestParam String comments) {
+        String result = adminService.updateComments(id, comments);
+        return ResponseEntity.ok(result);
+    }
 }

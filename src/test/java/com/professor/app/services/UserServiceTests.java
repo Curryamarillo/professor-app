@@ -45,7 +45,6 @@ public class UserServiceTests {
     Admin adminUser2;
 
     @BeforeEach
-
     void setUp() {
 
         adminUser1 = Admin.builder()
@@ -114,7 +113,7 @@ public class UserServiceTests {
 
     }
     @Test
-    @DisplayName("Find user by id throws exception")
+    @DisplayName("Find user by id throws exception test")
     public void findUserByIdNotFoundTest() {
         String id = "nonExistindId";
         Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
@@ -127,7 +126,7 @@ public class UserServiceTests {
     }
 
     @Test
-    @DisplayName("Find users by role")
+    @DisplayName("Find users by role test")
     public void findUsersByRole() {
         String role = "ADMIN";
         List<User> userList = Arrays.asList(adminUser1, adminUser2);
@@ -146,7 +145,7 @@ public class UserServiceTests {
     }
 
     @Test
-    @DisplayName("Find users by role throws exception when no users found")
+    @DisplayName("Find users by role throws exception when no users found test")
     public void findUsersByRoleNotFoundTest() {
         String role = "NON_EXISTING_ROLE";
 
@@ -160,24 +159,37 @@ public class UserServiceTests {
     }
 
     @Test
-    @DisplayName("Update password successfully")
+    @DisplayName("Update password successfully test")
     public void updatePassword() {
         String id = "10000";
         String newPassword = "new_password";
-        String oldPassword = adminUser1.getPassword();
+        String oldPassword = "password1";
 
         when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
 
-        String result = userService.updatePassword(id, newPassword, oldPassword);
+        String result = userService.updatePassword(id, oldPassword, newPassword);
 
-        assertEquals("User with id: " + id + " password updated successfully", result);
+        assertEquals("Password updated successfully", result);
         assertEquals(newPassword, adminUser1.getPassword());
         verify(userRepository).save(adminUser1);
     }
+    @Test
+    @DisplayName("Update password throws user not found exception test")
+    public void updatePasswordNotSuccessfullyTest() {
+        String id = "10010";
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+
+        assertThatThrownBy(() -> userService.updatePassword(id, oldPassword, newPassword))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessage("User not found");
+    }
 
     @Test
-    @DisplayName("Delete user successfully")
-    public void deleteUserSuccessfully() {
+    @DisplayName("Delete user successfully test")
+    public void deleteUserSuccessfullyTest() {
         String id = "1";
 
         when(userRepository.findById(id)).thenReturn(Optional.ofNullable(adminUser1));
@@ -189,8 +201,8 @@ public class UserServiceTests {
         verify(userRepository).deleteById(id);
     }
     @Test
-    @DisplayName("Fail to update password if old password is incorrect")
-    public void updatePassword_FailOldPasswordIncorrect() {
+    @DisplayName("Fail to update password if old password is incorrect test")
+    public void updatePasswordFailOldPasswordIncorrectTest() {
         String id = "10000";
         String oldPassword = "wrong_password";
         String newPassword = "new_password";
@@ -201,8 +213,8 @@ public class UserServiceTests {
         verify(userRepository, never()).save(adminUser1);
     }
     @Test
-    @DisplayName("Fail to update password if user not found")
-    public void updatePassword_UserNotFound() {
+    @DisplayName("Fail to update password if user not found test")
+    public void updatePasswordUserNotFoundTest() {
         String id = "10000";
         String oldPassword = "password1";
         String newPassword = "new_password";
@@ -214,8 +226,8 @@ public class UserServiceTests {
     }
 
     @Test
-    @DisplayName("Delete user not found exception")
-    public void deleteUserNotFoundException() {
+    @DisplayName("Delete user not found exception test")
+    public void deleteUserNotFoundExceptionTest() {
         String id = "1";
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());

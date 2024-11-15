@@ -13,6 +13,11 @@ public class UserGlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(HttpStatus.CONFLICT.value(),ex.getMessage(),System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
     /// USER exceptions
     /// User not found
@@ -36,7 +41,7 @@ public class UserGlobalExceptionHandler {
     ///  Wrong password match to update
     @ExceptionHandler(InvalidOldPasswordException.class)
     public ResponseEntity<ErrorResponse> handleInvalidOldPasswordException(InvalidOldPasswordException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage(), System.currentTimeMillis());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }

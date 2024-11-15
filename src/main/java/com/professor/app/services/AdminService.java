@@ -1,6 +1,7 @@
 package com.professor.app.services;
 
 import com.professor.app.dto.users.AdminRequestDTO;
+import com.professor.app.dto.users.AdminUpdateRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.entities.User;
@@ -10,6 +11,7 @@ import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.mapper.AdminMapper;
 import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
+import com.professor.app.roles.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +30,12 @@ public class AdminService {
             throw new UserAlreadyExistsException("User with email " + admin.email() + " already exists");
         }
         Admin adminObject = AdminMapper.toAdmin(admin);
+        adminObject.setRole(Role.ADMIN);
         Admin savedAdmin = userRepository.save(adminObject);
         return UserMapper.toUserResponseDTO(savedAdmin);
     }
 
-    public String updateAdminUser(String id, AdminRequestDTO admin) {
+    public String updateAdminUser(String id, AdminUpdateRequestDTO admin) {
         Optional<User> existUser = userRepository.findById(id);
         if (existUser.isEmpty()){
             throw new UserNotFoundException("User with email: " + admin.email() + " not exists");
@@ -64,7 +67,4 @@ public class AdminService {
             throw new InvalidUserTypeException("User with id: " + id + " is not an Admin");
         }
     }
-
-
-
 }

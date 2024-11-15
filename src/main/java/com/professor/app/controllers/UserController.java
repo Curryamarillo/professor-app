@@ -43,8 +43,8 @@ public class UserController {
            return ResponseEntity.ok(updatePassword);
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteUser(String id) {
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
         String deleteResult = userService.deleteUser(id);
         return ResponseEntity.ok(deleteResult);
     }
