@@ -1,11 +1,11 @@
 package com.professor.app.dto.users;
 
-import com.professor.app.roles.Role;
+import java.util.List;
 
-public record AdminRequestDTO(String name,
+public record TutorRequestDTO(String name,
                               String surname,
                               String email,
                               String password,
                               String dni,
-                              String comments) {
+                              List<String> tutoredStudentsId) {
 }

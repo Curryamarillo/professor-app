@@ -27,4 +27,16 @@ public class UserGlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage(), System.currentTimeMillis());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
+    /// Invalid User Type Exception
+    @ExceptionHandler(InvalidUserTypeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidUserTypeException(InvalidUserTypeException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage(), System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+    ///  Wrong password match to update
+    @ExceptionHandler(InvalidOldPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOldPasswordException(InvalidOldPasswordException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage(), System.currentTimeMillis());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
 }

@@ -1,8 +1,8 @@
 package com.professor.app.controllers;
 
 import com.professor.app.dto.users.AdminRequestDTO;
-import com.professor.app.dto.users.UserCreatedDTO;
 import com.professor.app.dto.users.UserResponseDTO;
+import com.professor.app.services.AdminService;
 import com.professor.app.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +16,13 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     @Autowired
-    private UserService userService;
+    private AdminService adminService;
 
     @PostMapping("/create")
     public ResponseEntity<UserResponseDTO> createAdminUser(@RequestBody AdminRequestDTO adminRequestDTO) {
-        UserResponseDTO createdUser = userService.saveAdminUser(adminRequestDTO);
+        UserResponseDTO createdUser = adminService.saveAdminUser(adminRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
-
 
 
 }

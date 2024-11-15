@@ -10,14 +10,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
-@Data
 @Document(collection = "users")
+@Data
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Student extends User {
+public class Assistant extends User{
 
-    private List<String> enrolledCoursesId;
+    private List<String> courseId;
 
-
+    private List<String> duties;
 }

@@ -5,19 +5,22 @@ import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 
-@Slf4j
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "users")
+@SuperBuilder
 public class User {
 
     @Id
@@ -33,7 +36,6 @@ public class User {
 
     private String password;
 
-    @Indexed(unique = true)
     private String dni;
 
     private Role role;

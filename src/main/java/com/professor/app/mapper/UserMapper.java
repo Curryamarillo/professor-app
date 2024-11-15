@@ -5,7 +5,7 @@ import com.professor.app.entities.User;
 
 public class UserMapper {
 
-    public static UserResponseDTO userResponseDTO(User user) {
+    public static UserResponseDTO toUserResponseDTO(User user) {
         return new UserResponseDTO(
                 user.getId(),
                 user.getName(),

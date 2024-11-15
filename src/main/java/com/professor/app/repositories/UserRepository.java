@@ -10,7 +10,23 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 
+    // All users queries
+
     Optional<User> findByEmail(String email);
 
     List<User> findUsersByRole(String role);
+
+    List<User> findByRoleAndNameIgnoreCaseOrSurnameIgnoreCase(String role, String searchTerm);
+
+    List<User> findByNameIgnoreCaseOrSurnameIgnoreCase(String searchTerm);
+
+    // Admin queries
+
+    // Assistant queries
+
+    // Professor queries
+
+    // Tutor queries
+
+    // Student queries
 }
