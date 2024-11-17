@@ -2,6 +2,7 @@ package com.professor.app.services;
 
 
 import com.professor.app.dto.users.UserResponseDTO;
+import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.entities.User;
 import com.professor.app.exceptions.UserNotFoundException;
@@ -101,7 +102,7 @@ public class UserServiceTests {
 
         when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
 
-        Optional<UserResponseDTO> result = userService.findUserById(id);
+        Optional<UserResponseDTO> result = Optional.ofNullable(userService.findUserById(id));
 
         assertTrue(result.isPresent());
         assertEquals(id, result.get().id());
@@ -184,7 +185,7 @@ public class UserServiceTests {
 
         assertThatThrownBy(() -> userService.updatePassword(id, oldPassword, newPassword))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User not found");
+                .hasMessage("User with id: " + id + " not found");
     }
 
     @Test
@@ -224,7 +225,35 @@ public class UserServiceTests {
         assertThrows(UserNotFoundException.class, () -> userService.updatePassword(id, newPassword, oldPassword));
         verify(userRepository, never()).save(any(Admin.class));
     }
+    @Test
+    @DisplayName("Should throw UserNotFoundException when the user is not found")
+    public void updateAdminUserShouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        String userId = "10000";
+        UserUpdateDTO adminUpdateRequestDTO = new UserUpdateDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com", "100055");
 
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
+            userService.updateUser(userId, adminUpdateRequestDTO);
+        });
+
+        assertEquals("User with email: updatedEmail@gmail.com not exists", exception.getMessage());
+    }
+    @Test
+    @DisplayName("Should update the user successfully when user exists")
+    public void updateAdminUser_ShouldUpdateUser_WhenUserExists() {
+        String userId = "10000";
+        UserUpdateDTO adminRequestDTO = new UserUpdateDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com",  "10000");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser1));
+        when(userRepository.save(any(User.class))).thenReturn(adminUser1);
+
+        String result = userService.updateUser(userId, adminRequestDTO);
+
+        assertEquals("User with id: 10000 updated successfully", result);
+
+        verify(userRepository).save(any(User.class));
+    }
     @Test
     @DisplayName("Delete user not found exception test")
     public void deleteUserNotFoundExceptionTest() {

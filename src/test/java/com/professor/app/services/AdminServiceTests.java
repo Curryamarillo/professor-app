@@ -1,11 +1,9 @@
 package com.professor.app.services;
 
 import com.professor.app.dto.users.AdminRequestDTO;
-import com.professor.app.dto.users.AdminUpdateRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.entities.Student;
-import com.professor.app.entities.User;
 import com.professor.app.exceptions.InvalidUserTypeException;
 import com.professor.app.exceptions.UserAlreadyExistsException;
 import com.professor.app.exceptions.UserNotFoundException;
@@ -27,8 +25,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +38,6 @@ public class AdminServiceTests {
 
 
     UserResponseDTO userResponseDTO1;
-    UserResponseDTO userResponseDTO2;
     Admin adminUser1;
     Admin adminUser2;
     Student nonAdmin;
@@ -86,7 +81,6 @@ public class AdminServiceTests {
 
 
         userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", Role.ADMIN);
-        userResponseDTO2 = new UserResponseDTO("10001", "Fideo", "Dimaria", "campeon11@gmail.com", "10000", Role.ADMIN);
 
 
     }
@@ -121,57 +115,9 @@ public class AdminServiceTests {
         String email = "campeon10@gmail.com";
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(adminUser1));
 
-        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
-            adminService.saveAdminUser(adminRequestDTO1);
-        });
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> adminService.saveAdminUser(adminRequestDTO1));
 
         assertEquals("User with email " + email + " already exists", exception.getMessage());
-    }
-    @Test
-    @DisplayName("Should throw UserAlreadyExistsException when the user already exists")
-    public void saveAdminUserShouldThrowUserAlreadyExistsExceptionWhenUserExists() {
-        String email = "campeon10@gmail.com";
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(adminUser1));
-
-        try (MockedStatic<AdminMapper> mockedAdminMapper = Mockito.mockStatic(AdminMapper.class)) {
-            mockedAdminMapper.when(() -> AdminMapper.toAdmin(adminRequestDTO1)).thenReturn(adminUser1);
-
-            UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
-                adminService.saveAdminUser(adminRequestDTO1);
-            });
-
-            assertEquals("User with email campeon10@gmail.com already exists", exception.getMessage());
-        }
-    }
-    @Test
-    @DisplayName("Should throw UserNotFoundException when the user is not found")
-    public void updateAdminUserShouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
-        String userId = "10000";
-        AdminUpdateRequestDTO adminUpdateRequestDTO = new AdminUpdateRequestDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com", "100055");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            adminService.updateAdminUser(userId, adminUpdateRequestDTO);
-        });
-
-        assertEquals("User with email: updatedEmail@gmail.com not exists", exception.getMessage());
-    }
-    @Test
-    @DisplayName("Should update the user successfully when user exists")
-    public void updateAdminUser_ShouldUpdateUser_WhenUserExists() {
-        String userId = "10000";
-        AdminUpdateRequestDTO adminRequestDTO = new AdminUpdateRequestDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com",  "10000");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser1));
-        when(userRepository.save(any(User.class))).thenReturn(adminUser1);
-
-        String result = adminService.updateAdminUser(userId, adminRequestDTO);
-
-        assertEquals("User with id: 10000 updated successfully", result);
-
-        verify(userRepository).save(any(User.class));
     }
     @Test
     @DisplayName("Update comments successfully")
@@ -195,9 +141,7 @@ public class AdminServiceTests {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(nonAdmin));
 
-        InvalidUserTypeException exception = assertThrows(InvalidUserTypeException.class, () -> {
-            adminService.updateComments(userId, comments);
-        });
+        InvalidUserTypeException exception = assertThrows(InvalidUserTypeException.class, () -> adminService.updateComments(userId, comments));
 
         assertEquals("User with id: " + userId + " is not an Admin", exception.getMessage());
     }
@@ -209,11 +153,27 @@ public class AdminServiceTests {
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            adminService.updateComments(id, comments);
-        });
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.updateComments(id, comments));
 
         assertEquals("User with id: " + id + " not found", exception.getMessage());
     }
 
+    @Test@DisplayName("get comments successfully")
+    public void getCommentsSuccessfully() {
+        String id = "10000";
+        when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
+
+        String result = adminService.getComments(id);
+
+        assertEquals("World Champion", result);
+    }
+    @Test
+    @DisplayName("Get comments throws exception")
+    public void getCommentsThrowsException() {
+        String id = "not_correct_10000";
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.getComments(id));
+        assertEquals("User with id: not_correct_10000 does not exist or is not an Admin", exception.getMessage());
+    }
 }

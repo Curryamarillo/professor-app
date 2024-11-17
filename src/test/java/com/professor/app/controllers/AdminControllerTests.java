@@ -1,15 +1,13 @@
 package com.professor.app.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.professor.app.dto.users.AdminRequestDTO;
-import com.professor.app.dto.users.AdminUpdateRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
+import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserAlreadyExistsException;
 import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
-import com.professor.app.roles.Role;
 import com.professor.app.services.AdminService;
 import com.professor.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.professor.app.roles.Role.ADMIN;
@@ -59,7 +58,7 @@ public class AdminControllerTests {
     Admin adminUser2;
 
     AdminRequestDTO adminRequestDTO1;
-    AdminUpdateRequestDTO adminUpdateRequestDTO;
+    UserUpdateDTO adminUpdateRequestDTO;
 
     @BeforeEach
     void setUp() {
@@ -96,7 +95,7 @@ public class AdminControllerTests {
                 "10000",
                 "World champion"
         );
-        adminUpdateRequestDTO = new AdminUpdateRequestDTO(
+        adminUpdateRequestDTO = new UserUpdateDTO(
                 "Lionel",
                 "Messi Cuccitini",
                 "campeónDeTodo",
@@ -140,39 +139,6 @@ public class AdminControllerTests {
                 .andExpect(jsonPath("$.message").value("User with email " + adminRequestDTO1.email() + " already exists"));
     }
     @Test
-    @DisplayName("Update Admin user by ID successfully")
-    void updateAdminByIdSuccessfully() throws Exception {
-        String id = "10000";
-        AdminUpdateRequestDTO updateRequestDTO = new AdminUpdateRequestDTO("Lionel", "Messi Cuccitini", "campeónDeTodo", "10");
-
-        given(userRepository.findById(id)).willReturn(Optional.of(adminUser1));
-
-        given(adminService.updateAdminUser(id, updateRequestDTO)).willReturn("User with id: " + id + " updated successfully");
-
-        mockMvc.perform(put("/api/admin/update/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateRequestDTO)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("User with id: " + id + " updated successfully"));
-    }
-
-    @Test
-    @DisplayName("Update admin by ID exception")
-    void updateAdminByIdThrowsException() throws Exception{
-        String id = "20000";
-        given(userRepository.findById(id)).willReturn(Optional.empty());
-
-        given(adminService.updateAdminUser(id, adminUpdateRequestDTO)).willThrow(new UserNotFoundException("User with id: " + id + " not found"));
-
-        mockMvc.perform(put("/api/admin/update/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(adminUpdateRequestDTO)))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("404"))
-                .andExpect(jsonPath("$.message").value("User with id: " + id + " not found"))
-                .andExpect(jsonPath("$.timestamp").exists());
-    }
-    @Test
     @DisplayName("Update comments successfully")
     void updateCommentsByIdSuccessfully() throws Exception {
         String id = "10000";
@@ -186,6 +152,20 @@ public class AdminControllerTests {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Comments updated successfully for user with id: " + id));
+    }
+
+    @Test
+    @DisplayName("Get comments successfully")
+    void getCommentsSuccessfully() throws Exception {
+        String id = "10000";
+
+        given(userRepository.findById(id)).willReturn(Optional.of(adminUser1));
+        given(adminService.getComments(id)).willReturn(adminUser1.getComments());
+
+        mockMvc.perform(get("/api/admin/comments/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("World Champion"));
     }
 
 }

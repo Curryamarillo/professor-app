@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.professor.app.dto.users.AdminRequestDTO;
 import com.professor.app.dto.users.UpdatePasswordDTO;
 import com.professor.app.dto.users.UserResponseDTO;
+import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
@@ -12,6 +13,7 @@ import com.professor.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,9 +40,10 @@ public class UserControllerTests {
     @MockBean
     private UserService userService;
 
-
-
     @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
     private UserRepository userRepository;
 
     UserResponseDTO userResponseDTO1;
@@ -48,7 +51,7 @@ public class UserControllerTests {
     Admin adminUser1;
     Admin adminUser2;
 
-    AdminRequestDTO adminRequestDTO1;
+    UserUpdateDTO userUpdateDTO;
 
     @BeforeEach
     void setUp() {
@@ -77,13 +80,11 @@ public class UserControllerTests {
                 .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
                 .comments("World Champion")
                 .build();
-        adminRequestDTO1 = new AdminRequestDTO(
+        userUpdateDTO = new UserUpdateDTO(
                 "Leonel",
                 "Messi",
                 "campeon10@gmail.com",
-                "password1",
-                "10000",
-                "World champion"
+                "password1"
         );
 
         userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", Role.ADMIN);
@@ -118,9 +119,9 @@ public class UserControllerTests {
     @DisplayName("Get user by ID success")
     void getUserById() throws Exception {
         String id = "10000";
-        Optional<UserResponseDTO> userResponseDTO = Optional.of(userResponseDTO1);
 
-        given(userService.findUserById(id)).willReturn(userResponseDTO);
+
+        given(userService.findUserById(id)).willReturn(userResponseDTO1);
 
         mockMvc.perform(get("/api/users/id/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -170,7 +171,38 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$[1].role").value("ADMIN"));
 
     }
+    @Test
+    @DisplayName("Update Admin user by ID successfully")
+    void updateAdminByIdSuccessfully() throws Exception {
+        String id = "10000";
+        UserUpdateDTO updateRequestDTO = new UserUpdateDTO("Lionel", "Messi Cuccitini", "campeónDeTodo", "10");
 
+        given(userRepository.findById(id)).willReturn(Optional.of(adminUser1));
+
+        given(userService.updateUser(id, updateRequestDTO)).willReturn("User with id: " + id + " updated successfully");
+
+        mockMvc.perform(put("/api/users/update/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("User with id: " + id + " updated successfully"));
+    }
+
+    @Test
+    @DisplayName("Update admin by ID exception")
+    void updateAdminByIdThrowsException() throws Exception{
+        String id = "20000";
+        given(userRepository.findById(id)).willReturn(Optional.empty());
+        given(userService.updateUser(id, userUpdateDTO)).willThrow(new UserNotFoundException("User with id: " + id + " not found"));
+
+        mockMvc.perform(put("/api/users/update/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdateDTO)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value("404"))
+                .andExpect(jsonPath("$.message").value("User with id: " + id + " not found"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
     @Test
     @DisplayName("Update password successfully")
     void updatePasswordSuccessfully() throws Exception {

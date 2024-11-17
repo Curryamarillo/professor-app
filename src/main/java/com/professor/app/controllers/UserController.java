@@ -2,6 +2,7 @@ package com.professor.app.controllers;
 
 import com.professor.app.dto.users.UpdatePasswordDTO;
 import com.professor.app.dto.users.UserResponseDTO;
+import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +25,21 @@ public class UserController {
         List<UserResponseDTO> userResponseDTOList = userService.findAllUsers();
         return ResponseEntity.ok(userResponseDTOList);
     }
-
     @GetMapping("/id/{id}")
     public ResponseEntity<Optional<UserResponseDTO>> getUserById(@PathVariable String id) {
-        Optional<UserResponseDTO> userResponseDTO = userService.findUserById(id);
+        Optional<UserResponseDTO> userResponseDTO = Optional.ofNullable(userService.findUserById(id));
         return  ResponseEntity.ok(userResponseDTO);
     }
     @GetMapping("/role/{role}")
     public ResponseEntity<List<UserResponseDTO>> getUsersByRole(@PathVariable String role) {
         List<UserResponseDTO>  userResponseDTOList = userService.findUsersByRole(role);
         return ResponseEntity.ok(userResponseDTOList);
+    }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateAdminUser(@PathVariable String id,
+                                                  @RequestBody UserUpdateDTO requestDTO) {
+        String result = userService.updateUser(id, requestDTO);
+        return ResponseEntity.ok(result);
     }
     @PutMapping("/{id}/update-password")
     public ResponseEntity<String> updatePassword(@PathVariable String id,
@@ -42,7 +48,6 @@ public class UserController {
            String updatePassword = userService.updatePassword(id, request.oldPassword(), request.newPassword());
            return ResponseEntity.ok(updatePassword);
     }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable String id) {
         String deleteResult = userService.deleteUser(id);

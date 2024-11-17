@@ -1,7 +1,6 @@
 package com.professor.app.controllers;
 
 import com.professor.app.dto.users.AdminRequestDTO;
-import com.professor.app.dto.users.AdminUpdateRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.services.AdminService;
 import lombok.AllArgsConstructor;
@@ -23,13 +22,12 @@ public class AdminController {
         UserResponseDTO createdUser = adminService.saveAdminUser(adminRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateAdminUser(@PathVariable String id,
-                                                  @RequestBody AdminUpdateRequestDTO requestDTO) {
-        String result = adminService.updateAdminUser(id, requestDTO);
-        return ResponseEntity.ok(result);
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<String> getComments(@PathVariable String id) {
+        String comments = adminService.getComments(id);
+        return ResponseEntity.status(HttpStatus.OK).body(comments);
     }
+
     @PatchMapping("/update/comments/{id}")
     public ResponseEntity<String> updateComments(@PathVariable String id,
                                                  @RequestParam String comments) {
