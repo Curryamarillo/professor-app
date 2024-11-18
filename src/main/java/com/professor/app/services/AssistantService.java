@@ -104,7 +104,7 @@ public class AssistantService {
         Assistant assistant = userRepository.findById(id)
                 .filter(Assistant.class::isInstance)
                 .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
         assistant.addCourseId(courseId);
         userRepository.save(assistant);
         return "Course added successfully to id: " + id;
@@ -113,9 +113,9 @@ public class AssistantService {
         Assistant assistant = userRepository.findById(id)
                 .filter(Assistant.class::isInstance)
                 .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
+                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
         if (!assistant.getCourseId().contains(courseId)) {
-            throw new UserNotFoundException("Course with id: " + courseId + " does not exist for user id: " + id);
+            throw new UserNotFoundException("Course with id: " + courseId + " does not exists for user id: " + id);
         }
         assistant.removeCourseId(courseId);
         userRepository.save(assistant);
