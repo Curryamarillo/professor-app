@@ -13,8 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -39,19 +38,21 @@ public class AssistantService {
 
  /// Duties
 
-    public List<String> getDutiesById(String id) {
+    public Set<String> getDutiesById(String id) {
         return userRepository.findById(id)
                 .filter(Assistant.class::isInstance)
                 .map(Assistant.class::cast)
                 .map(Assistant::getDuties)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
     }
-    public String addDuty(String id, String duty) {
+
+    public String addDutyById(String id, String duty) {
         Assistant assistant = userRepository.findById(id)
                 .filter(Assistant.class::isInstance)
                 .map(Assistant.class::cast)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
-        assistant.addDuty(duty);
+       Set<String> currentDuties = assistant.getDuties();
+       currentDuties.add(duty);
         userRepository.save(assistant);
         return "Duty added successfully to id: " + id;
     }
@@ -61,24 +62,17 @@ public class AssistantService {
                 .map(Assistant.class::cast)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
 
-        if (!assistant.getDuties().contains(duty)) {
+        Set<String> duties = Optional.ofNullable(assistant.getDuties())
+                .orElseThrow(() -> new IllegalStateException("Duties not initialized for user with id: " + id));
+
+        if (!duties.remove(duty)) {
             throw new IllegalArgumentException("Duty '" + duty + "' not found for user with id: " + id);
         }
-        assistant.removeDuty(duty);
-        userRepository.save(assistant);
 
+        userRepository.save(assistant);
         return "Duty removed successfully from user with id: " + id;
     }
 
-    public String updateDuties(String id, String duties) {
-        Assistant assistant = userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
-        assistant.setDuties(Collections.singletonList(duties));
-        userRepository.save(assistant);
-        return "Duty added successfully to id: " + id;
-    }
 
 
     /// Courses
@@ -105,7 +99,7 @@ public class AssistantService {
                 .filter(Assistant.class::isInstance)
                 .map(Assistant.class::cast)
                 .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
-        assistant.addCourseId(courseId);
+        assistant.setCourseId(List.of(courseId));
         userRepository.save(assistant);
         return "Course added successfully to id: " + id;
     }
@@ -117,7 +111,7 @@ public class AssistantService {
         if (!assistant.getCourseId().contains(courseId)) {
             throw new UserNotFoundException("Course with id: " + courseId + " does not exists for user id: " + id);
         }
-        assistant.removeCourseId(courseId);
+        assistant.setCourseId(List.of(""));
         userRepository.save(assistant);
         return "Course removed successfully to user id: " + id;
     }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/assistant")
@@ -40,13 +41,13 @@ public class AssistantController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedResponse);
     }
 
-    @PostMapping("/add-courses/{id}")
+    @PostMapping("/courses/add/{id}")
     public ResponseEntity<String> addCourses(@PathVariable String id,
                                              @RequestParam String courseId) {
         String courseAdded = assistantService.addCourseId(id, courseId);
         return ResponseEntity.status(HttpStatus.OK).body(courseAdded);
     }
-    @DeleteMapping("/delete-courses/{id}")
+    @DeleteMapping("/courses/delete/{id}")
     public ResponseEntity<String> removeCourses(@PathVariable String id,
                                                 @RequestParam String courseId) {
         String courseRemoved = assistantService.removeCourseId(id, courseId);
@@ -57,23 +58,17 @@ public class AssistantController {
 /// Duties controllers
 
     @GetMapping("/duties/{id}")
-    public ResponseEntity<List<String>> getDutiesById(@PathVariable String id) {
-    List<String> dutiesList = assistantService.getDutiesById(id);
+    public ResponseEntity<Set<String>> getDutiesById(@PathVariable String id) {
+    Set<String> dutiesList = assistantService.getDutiesById(id);
     return ResponseEntity.status(HttpStatus.OK).body(dutiesList);
 }
 
-    @PostMapping("/add-duty/{id}")
+    @PostMapping("/duties/add/{id}")
     public ResponseEntity<String> addDuty(@PathVariable String id, @RequestParam String duty) {
-    String addedDutyResult = assistantService.addDuty(id, duty);
+    String addedDutyResult = assistantService.addDutyById(id, duty);
     return ResponseEntity.status(HttpStatus.OK).body(addedDutyResult);
 }
-    @PatchMapping("/duties/{id}")
-    public ResponseEntity<String> getDutiesById(@PathVariable String id,
-                                                @RequestParam String duties){
-        String updateDuties = assistantService.updateDuties(id, duties);
-        return ResponseEntity.status(HttpStatus.OK).body(updateDuties);
-    }
-    @DeleteMapping("/remove-duty/{id}")
+    @DeleteMapping("/duties/remove/{id}")
     public ResponseEntity<String> removeDuty(@PathVariable String id, @RequestParam String duty) {
         String removeDutyResponse = assistantService.removeDuty(id, duty);
         return ResponseEntity.status(HttpStatus.OK).body(removeDutyResponse);

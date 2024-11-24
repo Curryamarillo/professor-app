@@ -159,21 +159,21 @@ public class AdminServiceTests {
     }
 
     @Test@DisplayName("get comments successfully")
-    public void getCommentsSuccessfully() {
+    public void getCommentsByIdSuccessfully() {
         String id = "10000";
         when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
 
-        String result = adminService.getComments(id);
+        String result = adminService.getCommentsById(id);
 
         assertEquals("World Champion", result);
     }
     @Test
     @DisplayName("Get comments throws exception")
-    public void getCommentsThrowsException() {
+    public void getCommentsByIdThrowsException() {
         String id = "not_correct_10000";
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.getComments(id));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.getCommentsById(id));
         assertEquals("User with id: not_correct_10000 does not exist or is not an Admin", exception.getMessage());
     }
 }

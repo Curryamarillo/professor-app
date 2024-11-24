@@ -32,7 +32,7 @@ public class AdminService {
         return UserMapper.toUserResponseDTO(savedAdmin);
     }
 
-    public String getComments(String id) {
+    public String getCommentsById(String id) {
         return userRepository.findById(id)
                 .filter(Admin.class::isInstance)
                 .map(Admin.class::cast)

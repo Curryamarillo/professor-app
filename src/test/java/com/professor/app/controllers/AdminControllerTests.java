@@ -6,7 +6,6 @@ import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserAlreadyExistsException;
-import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.services.AdminService;
 import com.professor.app.services.UserService;
@@ -21,8 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static com.professor.app.roles.Role.ADMIN;
@@ -160,7 +157,7 @@ public class AdminControllerTests {
         String id = "10000";
 
         given(userRepository.findById(id)).willReturn(Optional.of(adminUser1));
-        given(adminService.getComments(id)).willReturn(adminUser1.getComments());
+        given(adminService.getCommentsById(id)).willReturn(adminUser1.getComments());
 
         mockMvc.perform(get("/api/admin/comments/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON))

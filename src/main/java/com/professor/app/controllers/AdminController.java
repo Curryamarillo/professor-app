@@ -24,7 +24,7 @@ public class AdminController {
     }
     @GetMapping("/comments/{id}")
     public ResponseEntity<String> getComments(@PathVariable String id) {
-        String comments = adminService.getComments(id);
+        String comments = adminService.getCommentsById(id);
         return ResponseEntity.status(HttpStatus.OK).body(comments);
     }
 

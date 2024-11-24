@@ -22,10 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,7 +69,7 @@ public class AssistantServiceTests {
                 .password("password1")
                 .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
                 .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
-                .duties(new ArrayList<>(List.of(duty1, duty2)))
+                .duties(new HashSet<>(Set.of(duty1, duty2)))
                 .courseId(new ArrayList<>(List.of(courseId1, courseId2)))
                 .build();
 
@@ -86,11 +83,11 @@ public class AssistantServiceTests {
                 .password("password2")
                 .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
                 .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
-                .duties(new ArrayList<>(List.of(duty1, duty2)))
+                .duties(new HashSet<>(Set.of(duty1, duty2)))
                 .courseId(new ArrayList<>(List.of(courseId1, courseId2)))
                 .build();
 
-        assistantRequestDTO1 = new AssistantRequestDTO("Leonel", "Messi", "campeon10@gmail.com", "password1", "10000", List.of(courseId1, courseId2), List.of(duty1, duty2));
+        assistantRequestDTO1 = new AssistantRequestDTO("Leonel", "Messi", "campeon10@gmail.com", "password1", "10000", List.of(courseId1, courseId2), Set.of(duty1, duty2));
 
         userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", Role.ASSISTANT);
 
@@ -174,18 +171,22 @@ public class AssistantServiceTests {
 
     @Test
     @DisplayName("Update duties successfully")
-    public void updateDutiesSuccessfully() {
+    public void addDutiesByIdNotRepeatSuccessfully() {
         String id = "10000";
         String newDuty = "New duty";
-        assistantUser1.setDuties(Collections.singletonList(newDuty));
 
         when(userRepository.findById(id)).thenReturn(Optional.of(assistantUser1));
-        when(userRepository.save(assistantUser1)).thenReturn(assistantUser1);
+        when(userRepository.save(any(Assistant.class))).thenAnswer(invocation -> {
+            Assistant savedAssistant = invocation.getArgument(0);
+            savedAssistant.getDuties().add(newDuty);
+            return savedAssistant;
+        });
 
-        String result = assistantService.updateDuties(id, newDuty);
+        String result = assistantService.addDutyById(id, newDuty);
 
         assertEquals("Duty added successfully to id: " + id, result);
-        assertEquals(Collections.singletonList(newDuty), assistantUser1.getDuties());
+        assertEquals(Set.of(duty1, duty2, newDuty), assistantUser1.getDuties());
+        assertTrue(assistantUser1.getDuties().contains(newDuty));
         verify(userRepository).findById(id);
         verify(userRepository).save(assistantUser1);
 
@@ -193,15 +194,15 @@ public class AssistantServiceTests {
 
     @Test
     @DisplayName("Throws UserNotFoundException when user is not found")
-    public void updateDutiesThrowsUserNotFoundException() {
+    public void addDutiesByIdNotRepeatThrowsUserNotFoundException() {
         String id = "20002";
         String newDuty = "New duty";
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> assistantService.updateDuties(id, newDuty));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> assistantService.addDutyById(id, newDuty));
 
-        assertEquals("User with id: " + id + " does not exist or is not an Assistant", exception.getMessage());
+        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -218,9 +219,9 @@ public class AssistantServiceTests {
 
         UserNotFoundException exception = assertThrows(
                 UserNotFoundException.class,
-                () -> assistantService.updateDuties(id, newDuty)
+                () -> assistantService.addDutyById(id, newDuty)
         );
-        assertEquals("User with id: " + id + " does not exist or is not an Assistant", exception.getMessage());
+        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -257,11 +258,12 @@ public class AssistantServiceTests {
         String id = "10000";
         when(userRepository.findById(id)).thenReturn(Optional.of(assistantUser1));
 
-        List<String> result = assistantService.getDutiesById(id);
+        Set<String> result = assistantService.getDutiesById(id);
 
         assertEquals(2, result.size());
-        assertEquals("duty 1", result.getFirst());
-        assertEquals("duty 2", result.get(1));
+        assertTrue(result.contains("duty 1"));
+        assertTrue(result.contains("duty 2"));
+        assertEquals(assistantUser1.getDuties(), result);
         verify(userRepository, times(1)).findById(id);
     }
 
@@ -279,14 +281,14 @@ public class AssistantServiceTests {
 
     @Test
     @DisplayName("Add duty successfully")
-    public void addDutySuccessfully() {
+    public void addDutyByIdSuccessfully() {
         String id = "10000";
         String duty = "New duty";
 
         when(userRepository.findById(id)).thenReturn(Optional.of(assistantUser1));
         when(userRepository.save(assistantUser1)).thenReturn(assistantUser1);
 
-        String result = assistantService.addDuty(id, duty);
+        String result = assistantService.addDutyById(id, duty);
 
         assertEquals("Duty added successfully to id: " + id, result);
         ;
@@ -295,14 +297,14 @@ public class AssistantServiceTests {
 
     @Test
     @DisplayName("Add duty throws exception")
-    void addDutyUserNotFound() {
+    void addDutyByIdUserNotFound() {
         String id = "123";
         String duty = "New duty";
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-                () -> assistantService.addDuty(id, duty));
+                () -> assistantService.addDutyById(id, duty));
 
         assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
         verify(userRepository, never()).save(any());
