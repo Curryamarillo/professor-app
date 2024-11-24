@@ -6,78 +6,82 @@ import com.professor.app.entities.User;
 import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
+    // Retrieve all users
     public List<UserResponseDTO> findAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserMapper::toUserResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    // Retrieve user by ID
     public UserResponseDTO findUserById(String id) {
-        return userRepository.findById(id)
-                .map(UserMapper::toUserResponseDTO)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " not found"));
+        User user = getUserById(id);
+        return UserMapper.toUserResponseDTO(user);
     }
 
+    // Retrieve users by role
     public List<UserResponseDTO> findUsersByRole(String role) {
-        List<User> userList = userRepository.findUsersByRole(role);
-        if (userList.isEmpty()) {
-            throw new UserNotFoundException("User with role: " + role + " not found");
+        List<User> users = userRepository.findUsersByRole(role);
+        if (users.isEmpty()) {
+            throw new UserNotFoundException("No users found with role: " + role);
         }
-
-                return userList.stream()
+        return users.stream()
                 .map(UserMapper::toUserResponseDTO)
                 .collect(Collectors.toList());
     }
 
+    // Update user details
     public String updateUser(String id, UserUpdateDTO userUpdateDTO) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setName(userUpdateDTO.name());
-                    user.setSurname(userUpdateDTO.surname());
-                    user.setEmail(userUpdateDTO.email());
-                    user.setDni(userUpdateDTO.dni());
-                    userRepository.save(user);
-                    return "User with id: " + id + " updated successfully";
-                })
-                .orElseThrow(() -> new UserNotFoundException("User with email: " + userUpdateDTO.email() + " not exists"));
+        User user = getUserById(id);
+
+        user.setName(userUpdateDTO.name());
+        user.setSurname(userUpdateDTO.surname());
+        user.setEmail(userUpdateDTO.email());
+        user.setDni(userUpdateDTO.dni());
+
+        userRepository.save(user);
+        return "User with ID: " + id + " updated successfully";
     }
 
+    // Update user password
     public String updatePassword(String id, String oldPassword, String newPassword) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    if (!oldPassword.equals(user.getPassword())) {
-                        throw new IllegalArgumentException("Invalid credentials");
-                    }
-                    user.setPassword(newPassword);
-                    userRepository.save(user);
-                    return "Password updated successfully";
-                })
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " not found"));
+        User user = getUserById(id);
+
+        if (!oldPassword.equals(user.getPassword())) {
+            throw new IllegalArgumentException("Invalid credentials");
+        }
+
+        user.setPassword(newPassword);
+        userRepository.save(user);
+        return "Password updated successfully for user with ID: " + id;
     }
 
+    // Delete user by ID
     public String deleteUser(String id) {
         return userRepository.findById(id)
                 .map(user -> {
                     userRepository.deleteById(id);
-                    return "User with id: " + id + " has been deleted successfully";
+                    return "User with ID: " + id + " deleted successfully";
                 })
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new UserNotFoundException("User with ID: " + id + " not found"));
     }
 
-
+    // Private Helper Method
+    private User getUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with ID: " + id + " not found"));
+    }
 }
 

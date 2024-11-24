@@ -34,13 +34,6 @@ public class AssistantController {
         return ResponseEntity.status(HttpStatus.OK).body(courseList);
     }
 
-    @PatchMapping("/courses/update/{id}")
-    public ResponseEntity<String> updateCourses(@PathVariable String id,
-                                                @RequestParam String courseId) {
-        String updatedResponse = assistantService.updateCourseId(id, courseId);
-        return ResponseEntity.status(HttpStatus.OK).body(updatedResponse);
-    }
-
     @PostMapping("/courses/add/{id}")
     public ResponseEntity<String> addCourses(@PathVariable String id,
                                              @RequestParam String courseId) {

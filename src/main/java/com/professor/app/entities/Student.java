@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Student extends User {
 
-    private List<String> enrolledCoursesId;
+    private Set<String> enrolledCoursesId;
 
 
 }

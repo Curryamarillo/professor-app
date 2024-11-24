@@ -9,111 +9,93 @@ import com.professor.app.mapper.AssistantMapper;
 import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AssistantService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
- /// Assistant
-    public UserResponseDTO saveAssistant(AssistantRequestDTO assistant) {
-        userRepository.findByEmail(assistant.email())
-                .ifPresent(existing -> {
-                    throw new UserAlreadyExistsException("User with email: " + assistant.email() + " already exists");
-                });
+    // Save a new Assistant
+    public UserResponseDTO saveAssistant(AssistantRequestDTO assistantRequestDTO) {
+        if (userRepository.findByEmail(assistantRequestDTO.email()).isPresent()) {
+            throw new UserAlreadyExistsException("User with email: " + assistantRequestDTO.email() + " already exists");
+        }
 
-        Assistant assistantObject = AssistantMapper.toAssistant(assistant);
-        assistantObject.setRole(Role.ASSISTANT);
+        Assistant assistant = AssistantMapper.toAssistant(assistantRequestDTO);
+        assistant.setRole(Role.ASSISTANT);
 
-        Assistant savedAssistant = userRepository.save(assistantObject);
+        Assistant savedAssistant = userRepository.save(assistant);
         return UserMapper.toUserResponseDTO(savedAssistant);
     }
 
- /// Duties
-
+    // Duties Management
     public Set<String> getDutiesById(String id) {
-        return userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .map(Assistant::getDuties)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
+        return getAssistantById(id).getDuties();
     }
 
     public String addDutyById(String id, String duty) {
-        Assistant assistant = userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
-       Set<String> currentDuties = assistant.getDuties();
-       currentDuties.add(duty);
+        Assistant assistant = getAssistantById(id);
+        assistant.getDuties().add(duty);
         userRepository.save(assistant);
-        return "Duty added successfully to id: " + id;
+        return "Duty added successfully to user with ID: " + id;
     }
-    public String removeDuty(String id, String duty) {
-        Assistant assistant = userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
 
+    public String removeDuty(String id, String duty) {
+        Assistant assistant = getAssistantById(id);
         Set<String> duties = Optional.ofNullable(assistant.getDuties())
-                .orElseThrow(() -> new IllegalStateException("Duties not initialized for user with id: " + id));
+                .orElseThrow(() -> new IllegalStateException("Duties not initialized for user with ID: " + id));
 
         if (!duties.remove(duty)) {
-            throw new IllegalArgumentException("Duty '" + duty + "' not found for user with id: " + id);
+            throw new IllegalArgumentException("Duty '" + duty + "' not found for user with ID: " + id);
         }
 
         userRepository.save(assistant);
-        return "Duty removed successfully from user with id: " + id;
+        return "Duty removed successfully from user with ID: " + id;
     }
 
-
-
-    /// Courses
-
+    // Courses Management
     public List<String> getCoursesById(String id) {
+        return getAssistantById(id).getCourseId();
+    }
+
+    public String addCourseId(String id, String courseId) {
+        Assistant assistant = getAssistantById(id);
+        List<String> courseIds = assistant.getCourseId();
+        if (courseIds == null || courseIds.isEmpty()) {
+            assistant.setCourseId(Collections.singletonList(courseId));
+        } else {
+            courseIds.add(courseId);
+        }
+        userRepository.save(assistant);
+        return "Course added successfully to user with ID: " + id;
+    }
+
+    public String removeCourseId(String id, String courseId) {
+        Assistant assistant = getAssistantById(id);
+        List<String> courseIds = Optional.ofNullable(assistant.getCourseId())
+                .orElseThrow(() -> new IllegalStateException("Courses not initialized for user with ID: " + id));
+
+        if (!courseIds.remove(courseId)) {
+            throw new IllegalArgumentException("Course with ID: " + courseId + " does not exist for user with ID: " + id);
+        }
+
+        userRepository.save(assistant);
+        return "Course removed successfully from user with ID: " + id;
+    }
+
+    // Private Helper
+    private Assistant getAssistantById(String id) {
         return userRepository.findById(id)
                 .filter(Assistant.class::isInstance)
                 .map(Assistant.class::cast)
-                .map(Assistant::getCourseId)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
-    }
-
-    public String updateCourseId(String id, String courseId) {
-        Assistant assistant = userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
-        assistant.setCourseId(Collections.singletonList(courseId));
-        userRepository.save(assistant);
-        return "Course added successfully to id: " + id;
-    }
-    public String addCourseId(String id, String courseId) {
-        Assistant assistant = userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
-        assistant.setCourseId(List.of(courseId));
-        userRepository.save(assistant);
-        return "Course added successfully to id: " + id;
-    }
-    public String removeCourseId(String id, String courseId) {
-        Assistant assistant = userRepository.findById(id)
-                .filter(Assistant.class::isInstance)
-                .map(Assistant.class::cast)
-                .orElseThrow(() -> new UserNotFoundException("User with id: " + id + " does not exists or is not an Assistant"));
-        if (!assistant.getCourseId().contains(courseId)) {
-            throw new UserNotFoundException("Course with id: " + courseId + " does not exists for user id: " + id);
-        }
-        assistant.setCourseId(List.of(""));
-        userRepository.save(assistant);
-        return "Course removed successfully to user id: " + id;
+                .orElseThrow(() -> new UserNotFoundException("User with ID: " + id + " does not exist or is not an Assistant"));
     }
 }
-

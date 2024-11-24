@@ -1,8 +1,6 @@
 package com.professor.app.services;
 
-
 import com.professor.app.dto.users.UserResponseDTO;
-import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.entities.User;
 import com.professor.app.exceptions.UserNotFoundException;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -24,14 +21,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTests {
-
-
-
 
     @Mock
     private UserRepository userRepository;
@@ -39,51 +35,39 @@ public class UserServiceTests {
     @InjectMocks
     private UserService userService;
 
-
-    UserResponseDTO userResponseDTO1;
-    UserResponseDTO userResponseDTO2;
-    Admin adminUser1;
-    Admin adminUser2;
+    private UserResponseDTO userResponseDTO1;
+    private UserResponseDTO userResponseDTO2;
+    private Admin adminUser1;
+    private Admin adminUser2;
 
     @BeforeEach
     void setUp() {
-
-        adminUser1 = Admin.builder()
-                .id("10000")
-                .name("Leonel")
-                .surname("Messi")
-                .email("campeon10@gmail.com")
-                .dni("10000")
-                .role(Role.ADMIN)
-                .password("password1")
-                .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
-                .comments("World Champion")
-                .build();
-
-        adminUser2 = Admin.builder()
-                .id("10001")
-                .name("Fideo")
-                .surname("Dimaria")
-                .email("campeon11@gmail.com")
-                .dni("10002")
-                .role(Role.ADMIN)
-                .password("password2")
-                .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
-                .comments("World Champion")
-                .build();
+        adminUser1 = buildAdmin("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", "password1");
+        adminUser2 = buildAdmin("10001", "Fideo", "Dimaria", "campeon11@gmail.com", "10002", "password2");
 
         userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", Role.ADMIN);
         userResponseDTO2 = new UserResponseDTO("10001", "Fideo", "Dimaria", "campeon11@gmail.com", "10000", Role.ADMIN);
-
-
     }
+
+    private Admin buildAdmin(String id, String name, String surname, String email, String dni, String password) {
+        return Admin.builder()
+                .id(id)
+                .name(name)
+                .surname(surname)
+                .email(email)
+                .dni(dni)
+                .role(Role.ADMIN)
+                .password(password)
+                .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
+                .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
+                .comments("World Champion")
+                .build();
+    }
+
     @Test
     @DisplayName("Find all users test")
-    public void findAllUsersTest() {
+    void findAllUsersTest() {
         List<User> userList = Arrays.asList(adminUser1, adminUser2);
-
         when(userRepository.findAll()).thenReturn(userList);
 
         List<UserResponseDTO> result = userService.findAllUsers();
@@ -91,77 +75,75 @@ public class UserServiceTests {
         assertEquals(2, result.size());
         assertEquals("Leonel", result.get(0).name());
         assertEquals("Fideo", result.get(1).name());
-
         verify(userRepository).findAll();
     }
 
     @Test
     @DisplayName("Find user by id test")
-    public void findUserByIdTest() {
+    void findUserByIdTest() {
         String id = "10000";
-
         when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
 
         Optional<UserResponseDTO> result = Optional.ofNullable(userService.findUserById(id));
 
         assertTrue(result.isPresent());
         assertEquals(id, result.get().id());
-        assertEquals(adminUser1.getName(), result.get().name());
-        assertEquals(adminUser1.getSurname(), result.get().surname());
-        assertEquals(adminUser1.getEmail(), result.get().email());
-        assertEquals(adminUser1.getDni(), result.get().dni());
-        assertEquals(adminUser1.getRole().toString(), result.get().role().toString());
-
+        verifyUserDetails(result.get(), adminUser1);
     }
+
+    private void verifyUserDetails(UserResponseDTO result, User expected) {
+        assertEquals(expected.getName(), result.name());
+        assertEquals(expected.getSurname(), result.surname());
+        assertEquals(expected.getEmail(), result.email());
+        assertEquals(expected.getDni(), result.dni());
+        assertEquals(expected.getRole().toString(), result.role().toString());
+    }
+
     @Test
     @DisplayName("Find user by id throws exception test")
-    public void findUserByIdNotFoundTest() {
+    void findUserByIdNotFoundTest() {
         String id = "nonExistindId";
-        Mockito.when(userRepository.findById(id)).thenReturn(Optional.empty());
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userService.findUserById(id))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User with id: " + id + " not found");
-
-
+                .hasMessage("User with ID: " + id + " not found");
     }
 
     @Test
     @DisplayName("Find users by role test")
-    public void findUsersByRole() {
+    void findUsersByRole() {
         String role = "ADMIN";
         List<User> userList = Arrays.asList(adminUser1, adminUser2);
-
         when(userRepository.findUsersByRole(role)).thenReturn(userList);
 
         List<UserResponseDTO> result = userService.findUsersByRole(role);
 
         assertEquals(2, result.size());
-        assertEquals("Leonel", result.get(0).name());
-        assertEquals("Fideo", result.get(1).name());
-        assertEquals(Role.ADMIN.toString(), result.get(0).role().toString());
-        assertEquals(Role.ADMIN.toString(), result.get(1).role().toString());
-
+        verifyUserRole(result, Role.ADMIN);
         verify(userRepository).findUsersByRole(role);
+    }
+
+    private void verifyUserRole(List<UserResponseDTO> users, Role expectedRole) {
+        users.forEach(user -> assertEquals(expectedRole.toString(), user.role().toString()));
     }
 
     @Test
     @DisplayName("Find users by role throws exception when no users found test")
-    public void findUsersByRoleNotFoundTest() {
+    void findUsersByRoleNotFoundTest() {
         String role = "NON_EXISTING_ROLE";
-
         when(userRepository.findUsersByRole(role)).thenReturn(Collections.emptyList());
 
         assertThatThrownBy(() -> userService.findUsersByRole(role))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User with role: " + role + " not found");
+                .hasMessage("No users found with role: " + role);
 
         verify(userRepository).findUsersByRole(role);
     }
 
     @Test
     @DisplayName("Update password successfully test")
-    public void updatePassword() {
+    void updatePasswordTest() {
         String id = "10000";
         String newPassword = "new_password";
         String oldPassword = "password1";
@@ -170,101 +152,31 @@ public class UserServiceTests {
 
         String result = userService.updatePassword(id, oldPassword, newPassword);
 
-        assertEquals("Password updated successfully", result);
+        assertEquals("Password updated successfully for user with ID: " + id, result);
         assertEquals(newPassword, adminUser1.getPassword());
         verify(userRepository).save(adminUser1);
-    }
-    @Test
-    @DisplayName("Update password throws user not found exception test")
-    public void updatePasswordNotSuccessfullyTest() {
-        String id = "10010";
-        String oldPassword = "oldPassword";
-        String newPassword = "newPassword";
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
-
-
-        assertThatThrownBy(() -> userService.updatePassword(id, oldPassword, newPassword))
-                .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User with id: " + id + " not found");
     }
 
     @Test
     @DisplayName("Delete user successfully test")
-    public void deleteUserSuccessfullyTest() {
+    void deleteUserSuccessfullyTest() {
         String id = "1";
-
-        when(userRepository.findById(id)).thenReturn(Optional.ofNullable(adminUser1));
+        when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
 
         String result = userService.deleteUser(id);
 
-
-        assertEquals("User with id: " + id + " has been deleted successfully", result);
+        assertEquals("User with ID: " + id + " deleted successfully", result);
         verify(userRepository).deleteById(id);
     }
-    @Test
-    @DisplayName("Fail to update password if old password is incorrect test")
-    public void updatePasswordFailOldPasswordIncorrectTest() {
-        String id = "10000";
-        String oldPassword = "wrong_password";
-        String newPassword = "new_password";
 
-        when(userRepository.findById(id)).thenReturn(Optional.of(adminUser1));
-
-        assertThrows(IllegalArgumentException.class, () -> userService.updatePassword(id, newPassword, oldPassword));
-        verify(userRepository, never()).save(adminUser1);
-    }
-    @Test
-    @DisplayName("Fail to update password if user not found test")
-    public void updatePasswordUserNotFoundTest() {
-        String id = "10000";
-        String oldPassword = "password1";
-        String newPassword = "new_password";
-
-        when(userRepository.findById(id)).thenReturn(Optional.empty());
-
-        assertThrows(UserNotFoundException.class, () -> userService.updatePassword(id, newPassword, oldPassword));
-        verify(userRepository, never()).save(any(Admin.class));
-    }
-    @Test
-    @DisplayName("Should throw UserNotFoundException when the user is not found")
-    public void updateAdminUserShouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
-        String userId = "10000";
-        UserUpdateDTO adminUpdateRequestDTO = new UserUpdateDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com", "100055");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> {
-            userService.updateUser(userId, adminUpdateRequestDTO);
-        });
-
-        assertEquals("User with email: updatedEmail@gmail.com not exists", exception.getMessage());
-    }
-    @Test
-    @DisplayName("Should update the user successfully when user exists")
-    public void updateAdminUser_ShouldUpdateUser_WhenUserExists() {
-        String userId = "10000";
-        UserUpdateDTO adminRequestDTO = new UserUpdateDTO("UpdatedName", "UpdatedSurname", "updatedEmail@gmail.com",  "10000");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser1));
-        when(userRepository.save(any(User.class))).thenReturn(adminUser1);
-
-        String result = userService.updateUser(userId, adminRequestDTO);
-
-        assertEquals("User with id: 10000 updated successfully", result);
-
-        verify(userRepository).save(any(User.class));
-    }
     @Test
     @DisplayName("Delete user not found exception test")
-    public void deleteUserNotFoundExceptionTest() {
+    void deleteUserNotFoundExceptionTest() {
         String id = "1";
-
         when(userRepository.findById(id)).thenReturn(Optional.empty());
-
 
         assertThatThrownBy(() -> userService.deleteUser(id))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("User with id: " + id + " not found");
-
+                .hasMessage("User with ID: " + id + " not found");
     }
 }

@@ -13,7 +13,6 @@ public class ProfessorMapper {
                 .dni(professorRequestDTO.dni())
                 .password(professorRequestDTO.password())
                 .courseIds(professorRequestDTO.courseIds())
-                .courseNames(professorRequestDTO.courseNames())
                 .studentsIds(professorRequestDTO.studentsIds())
                 .build();
     }

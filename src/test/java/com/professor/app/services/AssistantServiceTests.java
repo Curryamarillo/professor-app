@@ -133,43 +133,6 @@ public class AssistantServiceTests {
     }
 
     @Test
-    @DisplayName("Update user course id successfully")
-    public void updateCourseIdSuccessfully() {
-        String id = "10000";
-        String newCourseId = "New course id";
-        assistantUser1.setCourseId(Collections.emptyList());
-
-        when(userRepository.findById(id)).thenReturn(Optional.of(assistantUser1));
-        when(userRepository.save(assistantUser1)).thenReturn(assistantUser1);
-
-        String result = assistantService.updateCourseId(id, newCourseId);
-
-        assertEquals("Course added successfully to id: " + id, result);
-        assertEquals(Collections.singletonList(newCourseId), assistantUser1.getCourseId());
-        verify(userRepository).findById(id);
-        verify(userRepository).save(assistantUser1);
-    }
-
-    @Test
-    @DisplayName("Update course instance ASSISTANT error")
-    public void updateCourseIdInstanceException() {
-        String id = "10000";
-        String courseId = "course id";
-        User user = new User();
-        user.setId(id);
-
-        when(userRepository.findById(id)).thenReturn(Optional.of(user));
-
-        UserNotFoundException exception = assertThrows(
-                UserNotFoundException.class,
-                () -> assistantService.updateCourseId(id, courseId)
-        );
-        assertEquals("User with id: " + id + " does not exist or is not an Assistant", exception.getMessage());
-        verify(userRepository).findById(id);
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
     @DisplayName("Update duties successfully")
     public void addDutiesByIdNotRepeatSuccessfully() {
         String id = "10000";
@@ -184,7 +147,7 @@ public class AssistantServiceTests {
 
         String result = assistantService.addDutyById(id, newDuty);
 
-        assertEquals("Duty added successfully to id: " + id, result);
+        assertEquals("Duty added successfully to user with ID: " + id, result);
         assertEquals(Set.of(duty1, duty2, newDuty), assistantUser1.getDuties());
         assertTrue(assistantUser1.getDuties().contains(newDuty));
         verify(userRepository).findById(id);
@@ -202,7 +165,7 @@ public class AssistantServiceTests {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> assistantService.addDutyById(id, newDuty));
 
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -221,7 +184,7 @@ public class AssistantServiceTests {
                 UserNotFoundException.class,
                 () -> assistantService.addDutyById(id, newDuty)
         );
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -248,7 +211,7 @@ public class AssistantServiceTests {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> assistantService.getCoursesById(id));
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository, times(1)).findById(id);
     }
 
@@ -275,7 +238,7 @@ public class AssistantServiceTests {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> assistantService.getDutiesById(id));
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository, times(1)).findById(id);
     }
 
@@ -290,7 +253,7 @@ public class AssistantServiceTests {
 
         String result = assistantService.addDutyById(id, duty);
 
-        assertEquals("Duty added successfully to id: " + id, result);
+        assertEquals("Duty added successfully to user with ID: " + id, result);
         ;
         assertTrue(assistantUser1.getDuties().contains(duty));
     }
@@ -306,7 +269,7 @@ public class AssistantServiceTests {
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> assistantService.addDutyById(id, duty));
 
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
 
@@ -321,7 +284,7 @@ public class AssistantServiceTests {
 
         String result = assistantService.removeDuty(id, dutyToRemove);
 
-        assertEquals("Duty removed successfully from user with id: " + id, result);
+        assertEquals("Duty removed successfully from user with ID: " + id, result);
         assertFalse(assistantUser1.getDuties().contains(dutyToRemove));
         verify(userRepository).findById(id);
         verify(userRepository).save(assistantUser1);
@@ -339,7 +302,7 @@ public class AssistantServiceTests {
                 IllegalArgumentException.class,
                 () -> assistantService.removeDuty(id, dutyToRemove)
         );
-        assertEquals("Duty '" + dutyToRemove + "' not found for user with id: " + id, exception.getMessage());
+        assertEquals("Duty '" + dutyToRemove + "' not found for user with ID: " + id, exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -356,7 +319,7 @@ public class AssistantServiceTests {
                 () -> assistantService.removeDuty(id, dutyToRemove)
         );
 
-        assertEquals("User with id: " + id + " does not exist or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -371,7 +334,7 @@ public class AssistantServiceTests {
 
         String result = assistantService.addCourseId(id, courseId);
 
-        assertEquals("Course added successfully to id: " + id, result);
+        assertEquals("Course added successfully to user with ID: " + id, result);
         assertTrue(assistantUser1.getCourseId().contains(courseId));
         verify(userRepository).findById(id);
         verify(userRepository).save(assistantUser1);
@@ -389,7 +352,7 @@ public class AssistantServiceTests {
                 () -> assistantService.addCourseId(id, courseId)
         );
 
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -409,7 +372,7 @@ public class AssistantServiceTests {
                 () -> assistantService.addCourseId(id, courseId)
         );
 
-        assertEquals("User with id: " + id + " does not exists or is not an Assistant", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Assistant", exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }
@@ -424,25 +387,25 @@ public class AssistantServiceTests {
 
         String result = assistantService.removeCourseId(id, courseId);
 
-        assertEquals("Course removed successfully to user id: " + id, result);
+        assertEquals("Course removed successfully from user with ID: " + id, result);
         assertFalse(assistantUser1.getCourseId().contains(courseId));
         verify(userRepository).findById(id);
         verify(userRepository).save(assistantUser1);
     }
 
     @Test
-    @DisplayName("Remove non existing course user throws user not found exception")
-    public void removeNonExistingCourseIdThrowsUserNotFoundException() {
+    @DisplayName("Remove non existing course user throws illegal argument exception")
+    public void removeNonExistingCourseIdThrowsIllegalArgumentException() {
         String id = "10000";
         String courseId = "course3";
 
         when(userRepository.findById(id)).thenReturn(Optional.of(assistantUser1));
 
-        UserNotFoundException exception = assertThrows(
-                UserNotFoundException.class,
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
                 () -> assistantService.removeCourseId(id, courseId)
         );
-        assertEquals("Course with id: " + courseId + " does not exists for user id: " + id, exception.getMessage());
+        assertEquals("Course with ID: " + courseId + " does not exist for user with ID: " + id, exception.getMessage());
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any());
     }

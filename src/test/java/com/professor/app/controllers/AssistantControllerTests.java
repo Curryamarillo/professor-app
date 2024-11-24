@@ -275,38 +275,6 @@ public class AssistantControllerTests {
     }
 
     @Test
-    @DisplayName("Update courses by Id successfully")
-    public void updateCoursesByIdSuccessfullyTest() throws Exception {
-        String id = "10000";
-        String courseToUpdate = "New course";
-        String response = "Course added successfully to id: " + id;
-
-        given(assistanceService.updateCourseId(id, courseToUpdate)).willReturn(response);
-
-        mockMvc.perform(patch("/api/assistant/courses/update/{id}", id)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .param("courseId", courseToUpdate))
-                .andExpect(status().isOk())
-                .andExpect(content().string(response));
-
-    }
-    @Test
-    @DisplayName("Update course by Id throws User Not Found Exception")
-    public void updateCourseByIdThrowsUserNotFoundException() throws Exception {
-        String id = "30000";
-        String courseToUpdate = "newCourse1";
-        String response = "User with id: " + id + " does not exists or is not an Assistant";
-        given(assistanceService.updateCourseId(id, courseToUpdate)).willThrow(new UserNotFoundException(response));
-
-        mockMvc.perform(patch("/api/assistant/courses/update/{id}", id)
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .param("courseId", courseToUpdate))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value("404"))
-                .andExpect(jsonPath("$.message").value(response))
-                .andExpect(jsonPath("$.timestamp").exists());
-    }
-    @Test
     @DisplayName("Add course by Id successfully")
     public void addCourseByIdSuccessfully() throws Exception {
         String id = "10000";

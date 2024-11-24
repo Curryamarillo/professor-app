@@ -130,7 +130,7 @@ public class AdminServiceTests {
         String result = adminService.updateComments(id, newComment);
 
         assertEquals("new comment", adminUser1.getComments());
-        assertEquals("Comments updated successfully for user with id: " + id, result);
+        assertEquals("Comments updated successfully for user with ID: " + id, result);
 
     }
     @Test
@@ -141,9 +141,9 @@ public class AdminServiceTests {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(nonAdmin));
 
-        InvalidUserTypeException exception = assertThrows(InvalidUserTypeException.class, () -> adminService.updateComments(userId, comments));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.updateComments(userId, comments));
 
-        assertEquals("User with id: " + userId + " is not an Admin", exception.getMessage());
+        assertEquals("User with ID: " + userId + " does not exist or is not an Admin", exception.getMessage());
     }
     @Test
     @DisplayName("Update comments throw user not found exception")
@@ -155,7 +155,7 @@ public class AdminServiceTests {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.updateComments(id, comments));
 
-        assertEquals("User with id: " + id + " not found", exception.getMessage());
+        assertEquals("User with ID: " + id + " does not exist or is not an Admin", exception.getMessage());
     }
 
     @Test@DisplayName("get comments successfully")
@@ -174,6 +174,6 @@ public class AdminServiceTests {
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> adminService.getCommentsById(id));
-        assertEquals("User with id: not_correct_10000 does not exist or is not an Admin", exception.getMessage());
+        assertEquals("User with ID: not_correct_10000 does not exist or is not an Admin", exception.getMessage());
     }
 }
