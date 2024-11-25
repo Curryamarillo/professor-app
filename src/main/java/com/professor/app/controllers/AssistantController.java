@@ -35,7 +35,7 @@ public class AssistantController {
     }
 
     @PostMapping("/courses/add/{id}")
-    public ResponseEntity<String> addCourses(@PathVariable String id,
+    public ResponseEntity<String> addCoursesByAssistantId(@PathVariable String id,
                                              @RequestParam String courseId) {
         String courseAdded = assistantService.addCourseId(id, courseId);
         return ResponseEntity.status(HttpStatus.OK).body(courseAdded);

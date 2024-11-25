@@ -2,6 +2,7 @@ package com.professor.app.repositories;
 
 import com.professor.app.entities.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,9 +17,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     List<User> findUsersByRole(String role);
 
-    List<User> findByRoleAndNameIgnoreCaseOrSurnameIgnoreCase(String role, String searchTerm);
-
-    List<User> findByNameIgnoreCaseOrSurnameIgnoreCase(String searchTerm);
+    @Query("{ '$or': [ { 'name': { $regex: ?0, $options: 'i' } }, { 'surname': { $regex: ?0, $options: 'i' } } ] }")
+    List<User> findByNameContainingOrSurnameContainingIgnoreCase(String searchTerm);
 
     // Admin queries
 

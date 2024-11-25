@@ -139,12 +139,7 @@ public class AssistantServiceTests {
         String newDuty = "New duty";
 
         when(userRepository.findById(id)).thenReturn(Optional.of(assistantUser1));
-        when(userRepository.save(any(Assistant.class))).thenAnswer(invocation -> {
-            Assistant savedAssistant = invocation.getArgument(0);
-            savedAssistant.getDuties().add(newDuty);
-            return savedAssistant;
-        });
-
+        when(userRepository.save(assistantUser1)).thenReturn(assistantUser1);
         String result = assistantService.addDutyById(id, newDuty);
 
         assertEquals("Duty added successfully to user with ID: " + id, result);
@@ -338,6 +333,28 @@ public class AssistantServiceTests {
         assertTrue(assistantUser1.getCourseId().contains(courseId));
         verify(userRepository).findById(id);
         verify(userRepository).save(assistantUser1);
+    }
+    @Test
+    @DisplayName("Add course ID with no previously course ID list")
+    void addCourseWithNoCourseIdList() {
+        String assistantId = "40000";
+        String courseId = "course1";
+
+        Assistant assistant = new Assistant();
+        assistant.setId(assistantId);
+        assistant.setCourseId(null);
+
+        when(userRepository.findById(assistantId)).thenReturn(Optional.of(assistant));
+        when(userRepository.save(any(Assistant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        String result = assistantService.addCourseId(assistantId, courseId);
+
+        assertNotNull(result);
+        assertEquals("Course added successfully to user with ID: " + assistantId, result);
+        assertNotNull(assistant.getCourseId());
+        assertEquals(1, assistant.getCourseId().size());
+        assertTrue(assistant.getCourseId().contains(courseId));
+        verify(userRepository, times(1)).save(assistant);
     }
     @Test
     @DisplayName("Add course throws user not found exception")

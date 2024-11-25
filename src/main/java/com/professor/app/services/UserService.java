@@ -41,6 +41,13 @@ public class UserService {
                 .map(UserMapper::toUserResponseDTO)
                 .collect(Collectors.toList());
     }
+    // Retrieve users by name or surname ignore case
+    public List<UserResponseDTO> findUsersByNameOrSurnameIgnoreCase(String searchTerm) {
+       return userRepository.findByNameContainingOrSurnameContainingIgnoreCase(searchTerm)
+               .stream()
+               .map(UserMapper::toUserResponseDTO)
+               .collect(Collectors.toList());
+    }
 
     // Update user details
     public String updateUser(String id, UserUpdateDTO userUpdateDTO) {

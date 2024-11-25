@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataMongoTest
 public class UserRepositoryTests {
@@ -30,10 +31,8 @@ public class UserRepositoryTests {
 
     @BeforeEach
     public void setUp() {
-        // Limpiar la base de datos antes de cada prueba
         mongoTemplate.dropCollection(User.class);
 
-        // Crear usuarios de ejemplo
         user1 = new User();
         user1.setId("1");
         user1.setName("Alberto");
@@ -67,7 +66,6 @@ public class UserRepositoryTests {
         user3.setCreatedAt(LocalDateTime.of(2024, 1, 1, 13, 0, 0));
         user3.setModifiedAt(LocalDateTime.of(2024, 2, 2, 13, 0, 0));
 
-        // Guardar los usuarios en la base de datos
         mongoTemplate.save(user1);
         mongoTemplate.save(user2);
         mongoTemplate.save(user3);
@@ -99,6 +97,14 @@ public class UserRepositoryTests {
         assertThat(result).hasSize(2);
         assertThat(result).extracting("email")
                 .containsExactlyInAnyOrder("albertoacosta@casla.com", "leandroromagnoli@casla.com");
+    }
+    @Test
+    void testFindByNameIgnoreCaseOrSurnameIgnoreCase() {
+
+        List<User> result = userRepository.findByNameContainingOrSurnameContainingIgnoreCase("ac");
+
+        System.out.println(result);
+        assertEquals(2, result.size());
     }
 
 

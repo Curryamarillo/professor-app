@@ -5,7 +5,6 @@ import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.services.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +16,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserController {
 
-    @Autowired
     private UserService userService;
 
     @GetMapping
@@ -35,6 +33,12 @@ public class UserController {
         List<UserResponseDTO>  userResponseDTOList = userService.findUsersByRole(role);
         return ResponseEntity.ok(userResponseDTOList);
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponseDTO>> getUserByNameOrSurnameIgnoreCase(@RequestParam String searchTerm) {
+        List<UserResponseDTO> userResponseDTOList = userService.findUsersByNameOrSurnameIgnoreCase(searchTerm);
+        return ResponseEntity.ok(userResponseDTOList);
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateAdminUser(@PathVariable String id,
                                                   @RequestBody UserUpdateDTO requestDTO) {
