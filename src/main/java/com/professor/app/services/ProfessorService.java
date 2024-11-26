@@ -96,7 +96,7 @@ public class ProfessorService {
         return "Student successfully deleted to user with ID: " + id;
     }
     /// delete users passing a list
-    public String deleteStudentsIdListByProfessorId(String id, Set<String> studentList) {
+    public String deleteStudentsIdListByProfessorId(String id, Set<String> studentIDListToDelete) {
         Professor professor = getProfessorById(id);
 
         Set<String> currentStudents = professor.getStudentsIds();
@@ -104,14 +104,14 @@ public class ProfessorService {
             throw new IllegalStateException("No student IDs exist for user with ID: " + id);
         }
 
-        Set<String> existingStudents = new HashSet<>(studentList);
+        Set<String> existingStudents = new HashSet<>(studentIDListToDelete);
         existingStudents.retainAll(currentStudents);
 
         if (existingStudents.isEmpty()) {
             throw new IllegalArgumentException("None of the provided student IDs exist for user with ID: " + id);
         }
 
-        Set<String> missingStudents = new HashSet<>(studentList);
+        Set<String> missingStudents = new HashSet<>(studentIDListToDelete);
         missingStudents.removeAll(currentStudents);
 
         currentStudents.removeAll(existingStudents);

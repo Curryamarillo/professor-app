@@ -43,7 +43,7 @@ public class AssistantControllerTests {
     private UserService userService;
 
     @MockBean
-    private AssistantService assistanceService;
+    private AssistantService assistantService;
 
     @MockBean
     private UserRepository userRepository;
@@ -108,7 +108,7 @@ public class AssistantControllerTests {
     @Test
     @DisplayName("Assistant created successfully")
     public void assistantCreatedSuccessfullyTest() throws Exception {
-        given(assistanceService.saveAssistant(assistantRequestDTO1)).willReturn(userResponseDTO1);
+        given(assistantService.saveAssistant(assistantRequestDTO1)).willReturn(userResponseDTO1);
 
         mockMvc.perform(post("/api/assistant/create")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -129,7 +129,7 @@ public class AssistantControllerTests {
 
         given(userRepository.findByEmail(assistantRequestDTO1.email()))
                 .willReturn(Optional.of(assistantUser1));
-        given(assistanceService.saveAssistant(assistantRequestDTO1))
+        given(assistantService.saveAssistant(assistantRequestDTO1))
                 .willThrow(new UserAlreadyExistsException("User with email " + assistantRequestDTO1.email() + " already exists"));
 
         mockMvc.perform(post("/api/assistant/create")
@@ -149,7 +149,7 @@ public class AssistantControllerTests {
         assistantUser1.setDuties(duties);
 
         given(userRepository.findById(id)).willReturn(Optional.of(assistantUser1));
-        given(assistanceService.getDutiesById(id)).willReturn(duties);
+        given(assistantService.getDutiesById(id)).willReturn(duties);
 
         mockMvc.perform(get("/api/assistant/duties/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -162,7 +162,7 @@ public class AssistantControllerTests {
     public void getDutiesThrowsUserNotFoundExceptionTest() throws Exception {
         String id = "90000";
 
-        given(assistanceService.getDutiesById(id)).willThrow(new UserNotFoundException("User with id: " + id + " not found"));
+        given(assistantService.getDutiesById(id)).willThrow(new UserNotFoundException("User with id: " + id + " not found"));
 
         mockMvc.perform(get("/api/assistant/duties/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -180,7 +180,7 @@ public class AssistantControllerTests {
 
         String responseMessage = "Duty added successfully to id: " + id;
 
-        given(assistanceService.addDutyById(id, newDuty)).willReturn(responseMessage);
+        given(assistantService.addDutyById(id, newDuty)).willReturn(responseMessage);
 
         mockMvc.perform(post("/api/assistant/duties/add/{id}", id)
                         .param("duty", newDuty)
@@ -195,7 +195,7 @@ public class AssistantControllerTests {
         String id = "90000";
         String newDuty = "New duty";
 
-        given(assistanceService.addDutyById(id, newDuty))
+        given(assistantService.addDutyById(id, newDuty))
                 .willThrow(new UserNotFoundException("User with id: " + id + " does not exist or is not an Assistant"));
 
         mockMvc.perform(post("/api/assistant/duties/add/{id}", id)
@@ -213,7 +213,7 @@ public class AssistantControllerTests {
         String dutyToDelete = "duty2";
         String responseMessage = "Duty removed successfully from user with id: " + id;
 
-        given(assistanceService.removeDuty(id, dutyToDelete)).willReturn(responseMessage);
+        given(assistantService.removeDuty(id, dutyToDelete)).willReturn(responseMessage);
 
         mockMvc.perform(delete("/api/assistant/duties/remove/{id}", id)
                         .param("duty", dutyToDelete)
@@ -229,7 +229,7 @@ public class AssistantControllerTests {
         String dutyToRemove = "duty1";
         String response = "User with id: " + id + " does not exist or is not an Assistant";
 
-        given(assistanceService.removeDuty(id, dutyToRemove)).willThrow(new UserNotFoundException(response));
+        given(assistantService.removeDuty(id, dutyToRemove)).willThrow(new UserNotFoundException(response));
 
         mockMvc.perform(delete("/api/assistant/duties/remove/{id}", id)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -249,7 +249,7 @@ public class AssistantControllerTests {
         List<String> courseList = List.of("course1", "course2");
         assistantUser1.setCourseId(courseList);
 
-        given(assistanceService.getCoursesById(id)).willReturn(courseList);
+        given(assistantService.getCoursesById(id)).willReturn(courseList);
 
         mockMvc.perform(get("/api/assistant/courses/{id}", id)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED))
@@ -263,7 +263,7 @@ public class AssistantControllerTests {
         String id = "30000";
         String response = "User with id: " + id + " does not exists or is not an Assistant";
 
-        given(assistanceService.getCoursesById(id)).willThrow(new UserNotFoundException(response));
+        given(assistantService.getCoursesById(id)).willThrow(new UserNotFoundException(response));
 
         mockMvc.perform(get("/api/assistant/courses/{id}", id)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
@@ -280,7 +280,7 @@ public class AssistantControllerTests {
         String courseToAdd = "course 5";
         String response = "Course added successfully to id: " + id;
 
-        given(assistanceService.addCourseId(id, courseToAdd)).willReturn(response);
+        given(assistantService.addCourseId(id, courseToAdd)).willReturn(response);
 
         mockMvc.perform(post("/api/assistant/courses/add/{id}", id)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -296,7 +296,7 @@ public class AssistantControllerTests {
         String courseToAdd = "course 5";
         String response = "User with id: " + id + " does not exists or is not an Assistant";
 
-        given(assistanceService.addCourseId(id, courseToAdd)).willThrow(new UserNotFoundException(response));
+        given(assistantService.addCourseId(id, courseToAdd)).willThrow(new UserNotFoundException(response));
 
         mockMvc.perform(post("/api/assistant/courses/add/{id}", id)
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -313,7 +313,7 @@ public class AssistantControllerTests {
         String courseToDelete = "course1";
         String response = "Course removed successfully to user id: " + id;
 
-        given(assistanceService.removeCourseId(id, courseToDelete)).willReturn(response);
+        given(assistantService.removeCourseId(id, courseToDelete)).willReturn(response);
 
         mockMvc.perform(delete("/api/assistant/courses/delete/{id}", id)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -328,7 +328,7 @@ public class AssistantControllerTests {
         String courseToDelete = "course1";
         String response = "User with id: " + id + " does not exists or is not an Assistant";
 
-        given(assistanceService.removeCourseId(id, courseToDelete)).willThrow(new UserNotFoundException(response));
+        given(assistantService.removeCourseId(id, courseToDelete)).willThrow(new UserNotFoundException(response));
 
         mockMvc.perform(delete("/api/assistant/courses/delete/{id}", id)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)

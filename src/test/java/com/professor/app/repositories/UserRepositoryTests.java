@@ -99,7 +99,8 @@ public class UserRepositoryTests {
                 .containsExactlyInAnyOrder("albertoacosta@casla.com", "leandroromagnoli@casla.com");
     }
     @Test
-    void testFindByNameIgnoreCaseOrSurnameIgnoreCase() {
+    @DisplayName("Find by name ignore case or surname ignore case test")
+    void findByNameIgnoreCaseOrSurnameIgnoreCaseTest() {
 
         List<User> result = userRepository.findByNameContainingOrSurnameContainingIgnoreCase("ac");
 
