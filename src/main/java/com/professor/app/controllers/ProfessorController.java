@@ -32,7 +32,7 @@ public class ProfessorController {
     }
     @PostMapping("/courses/add/{id}")
     public ResponseEntity<String> addCoursesIdByProfessorId(@PathVariable String id, @RequestParam String courseId) {
-        String courseAdded = professorService.addCourseIdById(id, courseId);
+        String courseAdded = professorService.addCourseIdByProfessorId(id, courseId);
         return ResponseEntity.status(HttpStatus.OK).body(courseAdded);
     }
     @DeleteMapping("/courses/delete/{id}")

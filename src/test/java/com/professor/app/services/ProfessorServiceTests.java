@@ -161,7 +161,7 @@ public class ProfessorServiceTests {
         when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
         when(userRepository.save(professorUser1)).thenReturn(professorUser1);
 
-        String result = professorService.addCourseIdById(id, courseToAdd);
+        String result = professorService.addCourseIdByProfessorId(id, courseToAdd);
 
         assertEquals("Course ID added successfully to user with ID: " + id, result);
         assertNotNull(professorUser1.getCourseIds());
@@ -183,7 +183,7 @@ public class ProfessorServiceTests {
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> professorService.addCourseIdById(id, courseId));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> professorService.addCourseIdByProfessorId(id, courseId));
 
         assertEquals("User with ID: " + id + " does not exist or is not a Professor", exception.getMessage());
     }

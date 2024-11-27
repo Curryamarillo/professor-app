@@ -42,7 +42,7 @@ public class ProfessorService {
     }
 
     // Add a course ID
-    public String addCourseIdById(String id, String courseId) {
+    public String addCourseIdByProfessorId(String id, String courseId) {
         Professor professor = getProfessorById(id);
         professor.getCourseIds().add(courseId);
         userRepository.save(professor);

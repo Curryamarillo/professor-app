@@ -264,4 +264,60 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$.message").value("User with id: " + id + " not found"))
                 .andExpect(jsonPath("$.status").value(404));
     }
+    @Test
+    @DisplayName("Search users by name or surname successfully")
+    void searchUsersByNameOrSurnameSuccessfully() throws Exception {
+        String searchTerm = "Messi";
+        List<UserResponseDTO> userResponseDTOList = List.of(userResponseDTO1, userResponseDTO2);
+
+        given(userService.findUsersByNameOrSurnameIgnoreCase(searchTerm)).willReturn(userResponseDTOList);
+
+        mockMvc.perform(get("/api/users/search")
+                        .param("searchTerm", searchTerm)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].id").value("10000"))
+                .andExpect(jsonPath("$[0].name").value("Leonel"))
+                .andExpect(jsonPath("$[0].surname").value("Messi"))
+                .andExpect(jsonPath("$[0].email").value("campeon10@gmail.com"))
+                .andExpect(jsonPath("$[0].role").value("ADMIN"))
+                .andExpect(jsonPath("$[1].id").value("10001"))
+                .andExpect(jsonPath("$[1].name").value("Fideo"))
+                .andExpect(jsonPath("$[1].surname").value("Dimaria"))
+                .andExpect(jsonPath("$[1].email").value("campeon11@gmail.com"))
+                .andExpect(jsonPath("$[1].role").value("ADMIN"));
+    }
+
+    @Test
+    @DisplayName("Search users by name or surname returns empty list")
+    void searchUsersByNameOrSurnameReturnsEmptyList() throws Exception {
+        String searchTerm = "Nonexistent";
+        List<UserResponseDTO> emptyList = List.of();
+
+        given(userService.findUsersByNameOrSurnameIgnoreCase(searchTerm)).willReturn(emptyList);
+
+        mockMvc.perform(get("/api/users/search")
+                        .param("searchTerm", searchTerm)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(0));
+    }
+
+    @Test
+    @DisplayName("Search users by name or surname throws exception")
+    void searchUsersByNameOrSurnameThrowsException() throws Exception {
+        String searchTerm = "InvalidSearchTerm";
+
+        given(userService.findUsersByNameOrSurnameIgnoreCase(searchTerm))
+                .willThrow(new IllegalArgumentException("Invalid search term: " + searchTerm));
+
+        mockMvc.perform(get("/api/users/search")
+                        .param("searchTerm", searchTerm)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid search term: " + searchTerm))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
 }
