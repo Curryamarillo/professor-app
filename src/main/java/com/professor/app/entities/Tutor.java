@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -18,6 +19,6 @@ import java.util.List;
 @NoArgsConstructor
 public class Tutor extends User{
 
-    private List<String> tutoredStudentsId;
+    private Set<String> tutoredStudentsId;
 
 }

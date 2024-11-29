@@ -3,7 +3,6 @@ package com.professor.app.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.professor.app.dto.users.AdminRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
-import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserAlreadyExistsException;
 import com.professor.app.repositories.UserRepository;
@@ -23,11 +22,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.professor.app.roles.Role.ADMIN;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,7 +52,6 @@ public class AdminControllerTests {
     Admin adminUser2;
 
     AdminRequestDTO adminRequestDTO1;
-    UserUpdateDTO adminUpdateRequestDTO;
 
     @BeforeEach
     void setUp() {
@@ -92,19 +88,13 @@ public class AdminControllerTests {
                 "10000",
                 "World champion"
         );
-        adminUpdateRequestDTO = new UserUpdateDTO(
-                "Lionel",
-                "Messi Cuccitini",
-                "campeónDeTodo",
-                "10"
-        );
 
         userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", ADMIN);
         userResponseDTO2 = new UserResponseDTO("10001", "Fideo", "Dimaria", "campeon11@gmail.com", "10000", ADMIN);
     }
     @Test
     @DisplayName("Create Admin user successfully")
-    void createAdminUserSuccessfully() throws Exception {
+    void createAdminUserSuccessfullyTest() throws Exception {
         given(adminService.saveAdminUser(adminRequestDTO1)).willReturn(userResponseDTO1);
 
        mockMvc.perform(post("/api/admin/create")

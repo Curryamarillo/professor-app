@@ -30,24 +30,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ProfessorServiceTests {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
-    private ProfessorService professorService;
-
     ProfessorRequestDTO professorRequestDTO1;
     UserResponseDTO userResponseDTO1;
-
     Professor professorUser1;
     Professor professorUser2;
-
     String courseId1;
     String courseId2;
-
     String studentId1;
     String studentId2;
     String studentId3;
+    @Mock
+    private UserRepository userRepository;
+    @InjectMocks
+    private ProfessorService professorService;
 
     @BeforeEach
     void setUp() {
@@ -58,38 +53,15 @@ public class ProfessorServiceTests {
         studentId2 = "studentId2";
         studentId3 = "studentId3";
 
-        professorUser1 = Professor.builder()
-                .id("10000")
-                .name("Lionel")
-                .surname("Messi")
-                .email("campeon10@gmail.com")
-                .dni("10000")
-                .role(Role.PROFESSOR)
-                .password("password1")
-                .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
-                .courseIds(new HashSet<>(Set.of(courseId1, courseId2)))
-                .studentsIds(new HashSet<>(Set.of(studentId1, studentId2, studentId3)))
-                .build();
+        professorUser1 = Professor.builder().id("10000").name("Lionel").surname("Messi").email("campeon10@gmail.com").dni("10000").role(Role.PROFESSOR).password("password1").createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0)).modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10)).courseIds(new HashSet<>(Set.of(courseId1, courseId2))).studentsIds(new HashSet<>(Set.of(studentId1, studentId2, studentId3))).build();
 
-        professorUser2 = Professor.builder()
-                .id("10001")
-                .name("Fideo")
-                .surname("Dimaria")
-                .email("campeon11@gmail.com")
-                .dni("10002")
-                .role(Role.ADMIN)
-                .password("password2")
-                .createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0))
-                .modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10))
-                .courseIds(new HashSet<>(Set.of(courseId1, courseId2)))
-                .studentsIds(new HashSet<>(Set.of(studentId1, studentId2, studentId3)))
-                .build();
+        professorUser2 = Professor.builder().id("10001").name("Fideo").surname("Dimaria").email("campeon11@gmail.com").dni("10002").role(Role.ADMIN).password("password2").createdAt(LocalDateTime.of(2024, 1, 1, 1, 0, 0)).modifiedAt(LocalDateTime.of(2024, 1, 1, 1, 1, 10)).courseIds(new HashSet<>(Set.of(courseId1, courseId2))).studentsIds(new HashSet<>(Set.of(studentId1, studentId2, studentId3))).build();
 
         professorRequestDTO1 = new ProfessorRequestDTO("Leonel", "Messi Cuccitini", "campeon10@gmail.com", "password1", "10001", Set.of(courseId1, courseId2), Set.of(studentId1, studentId2));
 
-         userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", Role.PROFESSOR);
+        userResponseDTO1 = new UserResponseDTO("10000", "Leonel", "Messi", "campeon10@gmail.com", "10000", Role.PROFESSOR);
     }
+
     @Test
     @DisplayName("Save professor user successfully")
     public void saveProfessorUserSuccessfully() {
@@ -98,8 +70,7 @@ public class ProfessorServiceTests {
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(userRepository.save(professorUser1)).thenReturn(professorUser1);
 
-        try (MockedStatic<ProfessorMapper> professorMapperMockedStatic = mockStatic(ProfessorMapper.class);
-             MockedStatic<UserMapper> userMapperMockedStatic = mockStatic(UserMapper.class)) {
+        try (MockedStatic<ProfessorMapper> professorMapperMockedStatic = mockStatic(ProfessorMapper.class); MockedStatic<UserMapper> userMapperMockedStatic = mockStatic(UserMapper.class)) {
 
             professorMapperMockedStatic.when(() -> ProfessorMapper.toProfessor(professorRequestDTO1)).thenReturn(professorUser1);
             userMapperMockedStatic.when(() -> UserMapper.toUserResponseDTO(professorUser1)).thenReturn(userResponseDTO1);
@@ -114,6 +85,7 @@ public class ProfessorServiceTests {
             assertEquals(Role.PROFESSOR, result.role());
         }
     }
+
     @Test
     @DisplayName("Save professor throws User Already Exists Exception")
     public void saveProfessorThrowsUserAlreadyExistsException() {
@@ -150,8 +122,9 @@ public class ProfessorServiceTests {
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> professorService.getCourseIdListById(falseId));
 
-    assertEquals("User with ID: " + falseId + " does not exist or is not a Professor", exception.getMessage());
+        assertEquals("User with ID: " + falseId + " does not exist or is not a Professor", exception.getMessage());
     }
+
     @Test
     @DisplayName("Add course ID to a Professor successfully")
     public void addCourseIDToProfessorSuccessfully() {
@@ -187,6 +160,7 @@ public class ProfessorServiceTests {
 
         assertEquals("User with ID: " + id + " does not exist or is not a Professor", exception.getMessage());
     }
+
     @Test
     @DisplayName("Remove course ID by ID successfully")
     public void removeCourseIDByUserIDSuccessfullyTest() {
@@ -202,25 +176,23 @@ public class ProfessorServiceTests {
         assertFalse(professorUser1.getCourseIds().contains(courseIDToRemove));
         verify(userRepository).findById(id);
     }
+
     @Test
     @DisplayName("Remove course ID by ID throws Illegal State Exception")
     public void removeCourseIdByUserIdThrowsIllegalStateException() {
         String id = "10000";
         String courseId = "courseId1";
 
-        Professor professor = Professor.builder()
-                .id("10000")
-                .courseIds(null)
-                .build();
+        Professor professor = Professor.builder().id("10000").courseIds(null).build();
 
         when(userRepository.findById(id)).thenReturn(Optional.of(professor));
 
-        Exception exception = assertThrows(IllegalStateException.class,
-                () -> professorService.removeCourseIdById(id, courseId));
+        Exception exception = assertThrows(IllegalStateException.class, () -> professorService.removeCourseIdById(id, courseId));
 
         assertEquals("Course IDs not initialized for user with ID: " + id, exception.getMessage());
         verify(userRepository, never()).save(any());
     }
+
     @Test
     @DisplayName("Remove course ID by ID throws Illegal Argument Exception")
     public void removeCourseIdByUserIdThrowsIllegalArgumentException() {
@@ -230,12 +202,12 @@ public class ProfessorServiceTests {
 
         when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
 
-        Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> professorService.removeCourseIdById(id, courseId));
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> professorService.removeCourseIdById(id, courseId));
 
         assertEquals("Course with ID: " + courseId + " not found", exception.getMessage());
 
     }
+
     @Test
     @DisplayName("Get student ID list successfully")
     public void getStudentIdListSuccessfully() {
@@ -251,12 +223,12 @@ public class ProfessorServiceTests {
         assertEquals(professorUser1.getStudentsIds(), studentIdList);
         verify(userRepository, times(1)).findById(id);
     }
+
     @Test
     @DisplayName("Add Student ID by professor ID successfully")
     public void addStudentIdByProfessorIdSuccessfully() {
         String id = "1000";
         String studentId = "newStudentId";
-
 
 
         when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
@@ -269,6 +241,7 @@ public class ProfessorServiceTests {
         assertTrue(professorUser1.getStudentsIds().contains(studentId));
         assertEquals(4, professorUser1.getStudentsIds().size());
     }
+
     @Test
     @DisplayName("Add student ID by professor ID throws User Not Found Exception")
     public void addStudentIdByProfessorIdThrowsUserNotFoundException() {
@@ -277,16 +250,16 @@ public class ProfessorServiceTests {
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
-                () -> professorService.addStudentIdByProfessorId(id, studentId));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> professorService.addStudentIdByProfessorId(id, studentId));
 
 
     }
+
     @Test
     @DisplayName("Add a list of student ID successfully")
     public void addAListOfStudentIdsByProfessorIdSuccessfully() {
         String id = "10000";
-        Set<String> listToAdd = Set.of("studentId3","studentId4","studentId5");
+        Set<String> listToAdd = Set.of("studentId3", "studentId4", "studentId5");
 
         when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
         when(userRepository.save(professorUser1)).thenReturn(professorUser1);
@@ -302,6 +275,7 @@ public class ProfessorServiceTests {
         verify(userRepository, times(1)).findById(id);
         verify(userRepository, times(1)).save(professorUser1);
     }
+
     @Test
     void addMultipleStudentsId_ShouldThrowException_WhenStudentIdsIsNull() {
         String id = "10000";
@@ -314,6 +288,7 @@ public class ProfessorServiceTests {
 
         assertEquals("The set of student IDs cannot be null or empty.", exception.getMessage());
     }
+
     @Test
     @DisplayName("Add student id list empty throws Illegal Argument Exception")
     public void addStudentIDListEmptyThrowsIllegalArgumentExceptionTest() {
@@ -329,6 +304,7 @@ public class ProfessorServiceTests {
 
 
     }
+
     @Test
     @DisplayName("Delete student by id with professor id successfully")
     public void deleteStudentByIdWithProfessorIdSuccessfullyTest() {
@@ -345,6 +321,7 @@ public class ProfessorServiceTests {
         verify(userRepository).save(professorUser1);
         verify(userRepository).findById(id);
     }
+
     @Test
     @DisplayName("Delete student by id with professor id throws User Not Found Error")
     public void deleteStudentByIdWithProfessorThrowsUserNotFoundExceptionTest() {
@@ -353,10 +330,7 @@ public class ProfessorServiceTests {
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(
-                UserNotFoundException.class,
-                () -> professorService.deleteStudentIdByProfessorId(id, studentToDelete)
-        );
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> professorService.deleteStudentIdByProfessorId(id, studentToDelete));
 
         assertEquals("User with ID: " + id + " does not exist or is not a Professor", exception.getMessage());
         verify(userRepository).findById(id);
@@ -370,13 +344,11 @@ public class ProfessorServiceTests {
         when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
 
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> professorService.deleteStudentIdByProfessorId(id, null)
-        );
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> professorService.deleteStudentIdByProfessorId(id, null));
         assertEquals("Student ID not found for user with ID: " + id, exception.getMessage());
         verify(userRepository).findById(id);
     }
+
     @Test
     @DisplayName("Delete student ID is null throws Illegal Argument Exception")
     public void deleteStudentIDNotContainsThrowsIllegalArgumentExceptionTest() {
@@ -386,13 +358,11 @@ public class ProfessorServiceTests {
         when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
 
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> professorService.deleteStudentIdByProfessorId(id, idToDelete)
-        );
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> professorService.deleteStudentIdByProfessorId(id, idToDelete));
         assertEquals("Student ID not found for user with ID: " + id, exception.getMessage());
         verify(userRepository).findById(id);
     }
+
     @Test
     @DisplayName("Delete by student ID list by professor ID successfully")
     public void deleteByIDListByProfessorIDSuccessfullyTest() {
@@ -409,6 +379,7 @@ public class ProfessorServiceTests {
         verify(userRepository).findById(id);
         verify(userRepository).save(professorUser1);
     }
+
     @Test
     @DisplayName("Delete by student IDs list by professor successfully")
     public void deleteByStudentIDListByProfessorIdTest() {
@@ -424,6 +395,7 @@ public class ProfessorServiceTests {
         assertTrue(Collections.disjoint(professorUser1.getStudentsIds(), studentIDsListToDelete));
 
     }
+
     @Test
     @DisplayName("Delete by student IDs list by professor throws Illegal State Exception")
     public void deleteByStudentIDListByProfessorIdThrowsTest() {
@@ -433,31 +405,28 @@ public class ProfessorServiceTests {
         when(userRepository.findById(id)).thenReturn(Optional.ofNullable(professorUser1));
 
 
-        IllegalStateException exception = assertThrows(
-                IllegalStateException.class,
-                () -> professorService.deleteStudentsIdListByProfessorId(id, studentIDsListToDelete));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> professorService.deleteStudentsIdListByProfessorId(id, studentIDsListToDelete));
 
         assertEquals("No student IDs exist for user with ID: " + id, exception.getMessage());
     }
+
     @Test
     @DisplayName("Delete by student IDs list by professor throws Illegal Argument Exception")
     public void deleteByStudentIDsListByProfessorThrowsIllegalArgumentExceptionTest() {
         String id = "10000";
-        Set<String> studentIDListToDelete = Set.of("nonExistingStudentId1","nonExistingStudentId2");
+        Set<String> studentIDListToDelete = Set.of("nonExistingStudentId1", "nonExistingStudentId2");
         when(userRepository.findById(id)).thenReturn(Optional.ofNullable(professorUser1));
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> professorService.deleteStudentsIdListByProfessorId(id,studentIDListToDelete)
-        );
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> professorService.deleteStudentsIdListByProfessorId(id, studentIDListToDelete));
         assertEquals("None of the provided student IDs exist for user with ID: " + id, exception.getMessage());
 
     }
+
     @Test
     @DisplayName("Delete by some student IDs list by professor successfully")
     public void deleteBySomeStudentIDsListByProfessorThrowsIllegalArgumentExceptionTest() {
         String id = "10000";
-        Set<String> studentIDListToDelete = Set.of("studentId1","nonExistingStudentId2");
+        Set<String> studentIDListToDelete = Set.of("studentId1", "nonExistingStudentId2");
         when(userRepository.findById(id)).thenReturn(Optional.ofNullable(professorUser1));
 
         String result = professorService.deleteStudentsIdListByProfessorId(id, studentIDListToDelete);

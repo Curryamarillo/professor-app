@@ -9,16 +9,15 @@ import com.professor.app.mapper.AdminMapper;
 import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class AdminService {
 
     private final UserRepository userRepository;
 
-    public AdminService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     // Save a new Admin
     public UserResponseDTO saveAdminUser(AdminRequestDTO adminRequestDTO) {
