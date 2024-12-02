@@ -12,8 +12,6 @@ import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,40 +39,6 @@ public class StudentService {
         Student student = getStudentById(id);
         student.getEnrolledCoursesId().add(courseId);
         return "Course ID added successfully to user with ID: " + id;
-    }
-    public String addEnrolledCourseIDByStudentListID(Set<String> studentIDList, String courseId) {
-        if (studentIDList == null || studentIDList.isEmpty()) {
-            throw new IllegalArgumentException("The student ID list cannot be null or empty.");
-        }
-
-        List<String> notFoundStudents = new ArrayList<>();
-        List<Student> updatedStudents = new ArrayList<>();
-
-        for (String studentId : studentIDList) {
-            try {
-                Student student = getStudentById(studentId);
-
-                if (student.getEnrolledCoursesId().contains(courseId)) {
-                    continue;
-                }
-
-                student.getEnrolledCoursesId().add(courseId);
-                updatedStudents.add(student);
-            } catch (UserNotFoundException e) {
-                notFoundStudents.add(studentId);
-            }
-        }
-
-        if (!updatedStudents.isEmpty()) {
-            userRepository.saveAll(updatedStudents);
-        }
-
-        StringBuilder response = new StringBuilder("Course ID added successfully to students. ");
-        if (!notFoundStudents.isEmpty()) {
-            response.append("The following student IDs were not found: ")
-                    .append(String.join(", ", notFoundStudents));
-        }
-        return response.toString();
     }
     public String removeEnrolledCourseIDByStudentID(String id, String enrolledCourseId) {
         Student student = getStudentById(id);

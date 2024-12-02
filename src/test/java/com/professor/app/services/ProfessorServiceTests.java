@@ -101,11 +101,11 @@ public class ProfessorServiceTests {
     @Test
     @DisplayName("Get courses by ID returns a list successfully")
     public void getCourseIdListByIdSuccessfullyTest() {
-        String professorId = "1000";
+        String id = "1000";
 
-        when(userRepository.findById(professorId)).thenReturn(Optional.of(professorUser1));
+        when(userRepository.findById(id)).thenReturn(Optional.of(professorUser1));
 
-        Set<String> result = professorService.getCourseIdListById(professorId);
+        Set<String> result = professorService.getCourseIdListById(id);
 
         assertNotNull(result);
         assertEquals(2, result.size());
