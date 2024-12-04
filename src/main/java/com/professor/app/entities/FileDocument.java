@@ -24,8 +24,8 @@ public class FileDocument {
 
     private long size;
 
-    @Field("content")
-    private byte[] content;
+    @Field("location")
+    private String location;
 
 
 }
