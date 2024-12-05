@@ -9,8 +9,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-
 @Service
 @AllArgsConstructor
 public class PostService {
@@ -24,7 +22,6 @@ public class PostService {
                 .title(postRequestDTO.title())
                 .postedByRole(postRequestDTO.postedByRole())
                 .textContent(postRequestDTO.textContent())
-                .createdAt(new Date(System.currentTimeMillis()))
                 .build();
         return postRepository.save(post);
     }

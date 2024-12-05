@@ -3,14 +3,17 @@ package com.professor.app.entities;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Document(collection = "files")
+@Document(collection = "file_documents")
 public class FileDocument {
 
     @Id
@@ -18,14 +21,16 @@ public class FileDocument {
 
     private String userId;
 
-    private String name;
+    private String fileName;
 
-    private String fileType;
+    private String uuidFileName;
+
+    private String mimeType;
 
     private long size;
 
-    @Field("location")
-    private String location;
+    private String downloadUrl;
 
-
+    @CreatedDate
+    private LocalDateTime createdAt;
 }

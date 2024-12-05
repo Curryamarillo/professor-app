@@ -11,5 +11,5 @@ public interface FileDocumentRepository extends MongoRepository<FileDocument, St
 
     Optional<FileDocument> findByUserId(String userId);
 
-    Optional<FileDocument> findByName(String name);
+    Optional<FileDocument> findByFileName(String name);
 }
