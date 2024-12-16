@@ -1,5 +1,6 @@
 package com.professor.app.entities;
 
+import com.professor.app.dto.posts.CommentCreateRequestDTO;
 import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,8 +32,6 @@ public class Post {
 
     private String textContent;
 
-    private List<FileDocument> attachment = new ArrayList<>();
-
     private List<Comment> comments = new ArrayList<>();
 
     private Role postedByRole;
@@ -44,9 +43,6 @@ public class Post {
 
     public void addComment(Comment comment) {
         this.comments.add(comment);
-    }
-    public void addAttachment(FileDocument attachment) {
-        this.attachment.add(attachment);
     }
 
 }

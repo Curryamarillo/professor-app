@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
-public class FileSystemStorageService implements  StorageService{
+public class FileSystemStorageService implements  StorageService {
 
 
     private final Path rootLocation;
@@ -72,16 +72,15 @@ public class FileSystemStorageService implements  StorageService{
 
     @Override
     public Stream<Path> loadAll() {
-        try {
-            return Files.walk(this.rootLocation, 1)
+        try (Stream<Path> stream = Files.walk(this.rootLocation, 1)) {
+            return stream
                     .filter(path -> !path.equals(this.rootLocation))
                     .map(this.rootLocation::relativize);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new StorageException("Failed to read stored files", e);
         }
-
     }
+
 
     @Override
     public Path load(String filename) {

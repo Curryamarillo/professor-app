@@ -23,8 +23,6 @@ public class FileDocument {
 
     private String fileName;
 
-    private String uuidFileName;
-
     private String mimeType;
 
     private long size;
