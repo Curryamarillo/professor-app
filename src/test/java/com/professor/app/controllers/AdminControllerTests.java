@@ -7,7 +7,6 @@ import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserAlreadyExistsException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.services.AdminService;
-import com.professor.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -10,23 +10,29 @@ import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class AdminService {
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
+
+    private final PasswordEncoder encoder;
 
 
     // Save a new Admin
     public UserResponseDTO saveAdminUser(AdminRequestDTO adminRequestDTO) {
-        if (userRepository.findByEmail(adminRequestDTO.email()).isPresent()) {
+        if (userRepository.existsByEmail(adminRequestDTO.email())) {
             throw new UserAlreadyExistsException("User with email " + adminRequestDTO.email() + " already exists");
         }
 
         Admin admin = AdminMapper.toAdmin(adminRequestDTO);
         admin.setRole(Role.ADMIN);
+        admin.setPassword(encoder.encode(adminRequestDTO.password()));
         Admin savedAdmin = userRepository.save(admin);
         return UserMapper.toUserResponseDTO(savedAdmin);
     }

@@ -1,22 +1,43 @@
 package com.professor.app.services;
 
+import com.professor.app.config.security.JwtUtils;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.dto.users.UserUpdateDTO;
 import com.professor.app.entities.User;
 import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class UserService {
 
-    private final UserRepository userRepository;
+@Service
+@AllArgsConstructor
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    @Autowired
+    @Lazy
+    private JwtUtils jwtUtils;
+
+
+   private UserRepository userRepository;
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println(userRepository.findByEmail(username));
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+    }
 
     // Retrieve all users
     public List<UserResponseDTO> findAllUsers() {
@@ -43,10 +64,10 @@ public class UserService {
     }
     // Retrieve users by name or surname ignore case
     public List<UserResponseDTO> findUsersByNameOrSurnameIgnoreCase(String searchTerm) {
-       return userRepository.findByNameContainingOrSurnameContainingIgnoreCase(searchTerm)
-               .stream()
-               .map(UserMapper::toUserResponseDTO)
-               .collect(Collectors.toList());
+        return userRepository.findByNameContainingOrSurnameContainingIgnoreCase(searchTerm)
+                .stream()
+                .map(UserMapper::toUserResponseDTO)
+                .collect(Collectors.toList());
     }
 
     // Update user details
@@ -91,4 +112,3 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User with ID: " + id + " not found"));
     }
 }
-

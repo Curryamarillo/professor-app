@@ -1,6 +1,5 @@
 package com.professor.app.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.professor.app.dto.users.TutorRequestDTO;
 import com.professor.app.dto.users.UserResponseDTO;
@@ -10,7 +9,6 @@ import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
 import com.professor.app.services.TutorService;
-import com.professor.app.services.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

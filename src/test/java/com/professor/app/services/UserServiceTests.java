@@ -34,7 +34,7 @@ public class UserServiceTests {
     private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    private UserDetailsServiceImpl userService;
 
     private UserResponseDTO userResponseDTO1;
     private UserResponseDTO userResponseDTO2;

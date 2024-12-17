@@ -3,7 +3,7 @@ package com.professor.app.controllers;
 import com.professor.app.dto.users.UpdatePasswordDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.dto.users.UserUpdateDTO;
-import com.professor.app.services.UserService;
+import com.professor.app.services.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class UserController {
 
-    private UserService userService;
+    private UserDetailsServiceImpl userService;
 
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
@@ -40,8 +40,8 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateAdminUser(@PathVariable String id,
-                                                  @RequestBody UserUpdateDTO requestDTO) {
+    public ResponseEntity<String> updateUser(@PathVariable String id,
+                                             @RequestBody UserUpdateDTO requestDTO) {
         String result = userService.updateUser(id, requestDTO);
         return ResponseEntity.ok(result);
     }

@@ -25,7 +25,7 @@ public class ProfessorService {
 
     // Save a new Professor
     public UserResponseDTO saveProfessorUser(ProfessorRequestDTO professor) {
-        if (userRepository.findByEmail(professor.email()).isPresent()) {
+        if (userRepository.existsByEmail(professor.email())) {
             throw new UserAlreadyExistsException("User with email: " + professor.email() + " already exists");
         }
 

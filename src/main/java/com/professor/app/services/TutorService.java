@@ -25,7 +25,7 @@ public class TutorService {
 
     // Save a new tutor
     public UserResponseDTO saveTutorUser(TutorRequestDTO tutorRequestDTO) {
-        if (userRepository.findByEmail(tutorRequestDTO.email()).isPresent()) {
+        if (userRepository.existsByEmail(tutorRequestDTO.email())) {
             throw new UserAlreadyExistsException("User with email: " + tutorRequestDTO.email() + " already exists");
         }
         Tutor tutor = TutorMapper.toTutor(tutorRequestDTO);

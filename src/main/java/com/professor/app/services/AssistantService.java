@@ -25,7 +25,7 @@ public class AssistantService {
 
     // Save a new Assistant
     public UserResponseDTO saveAssistant(AssistantRequestDTO assistantRequestDTO) {
-        if (userRepository.findByEmail(assistantRequestDTO.email()).isPresent()) {
+        if (userRepository.existsByEmail(assistantRequestDTO.email())) {
             throw new UserAlreadyExistsException("User with email: " + assistantRequestDTO.email() + " already exists");
         }
 

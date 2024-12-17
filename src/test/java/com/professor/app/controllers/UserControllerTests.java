@@ -1,7 +1,6 @@
 package com.professor.app.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.professor.app.dto.users.AdminRequestDTO;
 import com.professor.app.dto.users.UpdatePasswordDTO;
 import com.professor.app.dto.users.UserResponseDTO;
 import com.professor.app.dto.users.UserUpdateDTO;
@@ -9,11 +8,10 @@ import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
-import com.professor.app.services.UserService;
+import com.professor.app.services.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,7 +36,7 @@ public class UserControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserDetailsServiceImpl userService;
 
     @Autowired
     private ObjectMapper objectMapper;

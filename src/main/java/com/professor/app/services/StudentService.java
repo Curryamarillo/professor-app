@@ -22,7 +22,7 @@ public class StudentService {
     private final UserRepository userRepository;
 
     public UserResponseDTO saveStudentUser(StudentRequestDTO studentRequestDTO) {
-        if (userRepository.findByEmail(studentRequestDTO.email()).isPresent()) {
+        if (userRepository.existsByEmail(studentRequestDTO.email())) {
             throw new UserAlreadyExistsException("User with email: " + studentRequestDTO.email() + " already exists.");
         }
         Student studentObject = StudentMapper.toStudent(studentRequestDTO);

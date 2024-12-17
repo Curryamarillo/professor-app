@@ -15,6 +15,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByEmail(String email);
 
+    boolean existsByEmail(String email);
+
     List<User> findUsersByRole(String role);
 
     @Query("{ '$or': [ { 'name': { $regex: ?0, $options: 'i' } }, { 'surname': { $regex: ?0, $options: 'i' } } ] }")
