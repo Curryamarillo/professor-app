@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,32 +32,31 @@ public class JwtValidator extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String jwtToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
-            jwtToken = jwtToken.substring(7);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwtToken = authHeader.substring(7);
 
             try {
                 DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
 
                 String username = jwtUtils.extractUsername(decodedJWT);
-                String stringAuthorities = jwtUtils.getSpecicficClaim(decodedJWT, "authorities").asString();
-                boolean isRefreshToken = jwtUtils.isRefreshToken(jwtToken);
-                if (isRefreshToken) {
-                    String newAccessToken = jwtUtils.createAuthToken(new UsernamePasswordAuthenticationToken(username, null, AuthorityUtils.commaSeparatedStringToAuthorityList(stringAuthorities)));
-                    response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken);
-                } else {
-                    Collection<? extends GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(stringAuthorities);
 
-                    Authentication authenticationToken = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                String stringAuthorities = jwtUtils.getSpecicficClaim(decodedJWT, "authorities").asString();
+
+                if (!jwtUtils.isRefreshToken(jwtToken)) {
+                    Collection<? extends  GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(stringAuthorities);
+                    Authentication authenticationToken =  new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
                 }
             } catch (JWTVerificationException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
+
             }
+        } else {
+            filterChain.doFilter(request, response);
         }
-        filterChain.doFilter(request, response);
+
     }
 }

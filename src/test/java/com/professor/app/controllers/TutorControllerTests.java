@@ -9,6 +9,7 @@ import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
 import com.professor.app.services.TutorService;
+import com.professor.app.services.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ public class TutorControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserDetailsServiceImpl userService;
 
     @MockBean
     private TutorService tutorService;

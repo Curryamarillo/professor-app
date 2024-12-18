@@ -10,6 +10,7 @@ import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -22,6 +23,8 @@ public class ProfessorService {
 
     private final UserRepository userRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
 
     // Save a new Professor
     public UserResponseDTO saveProfessorUser(ProfessorRequestDTO professor) {
@@ -31,6 +34,7 @@ public class ProfessorService {
 
         Professor professorObject = ProfessorMapper.toProfessor(professor);
         professorObject.setRole(Role.PROFESSOR);
+        professorObject.setPassword(passwordEncoder.encode(professor.password()));
         Professor savedProfessor = userRepository.save(professorObject);
         return UserMapper.toUserResponseDTO(savedProfessor);
     }

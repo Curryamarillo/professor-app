@@ -7,6 +7,7 @@ import com.professor.app.entities.Admin;
 import com.professor.app.exceptions.UserAlreadyExistsException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.services.AdminService;
+import com.professor.app.services.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ public class AdminControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserDetailsServiceImpl userService;
 
     @MockBean
     private AdminService adminService;

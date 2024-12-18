@@ -9,6 +9,7 @@ import com.professor.app.exceptions.UserAlreadyExistsException;
 import com.professor.app.exceptions.UserNotFoundException;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.services.AssistantService;
+import com.professor.app.services.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ public class AssistantControllerTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserDetailsServiceImpl userService;
 
     @MockBean
     private AssistantService assistantService;
