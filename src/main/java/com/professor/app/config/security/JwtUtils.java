@@ -7,7 +7,6 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.professor.app.entities.Token;
-import com.professor.app.entities.User;
 import com.professor.app.repositories.TokenRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -43,13 +42,15 @@ public class JwtUtils {
 
     public String createAuthToken(Authentication authentication) {
         Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
-        User user = (User) authentication.getPrincipal();
+        String username = authentication.getPrincipal().toString();
         String authorities = authentication.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
+        Object principal = authentication.getPrincipal();
+        System.out.println("Tipo de principal: " + principal.getClass().getName());
         String token = JWT.create()
                 .withIssuer(this.userGenerator)
-                .withSubject(user.getEmail())
+                .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withClaim("type", "authToken")
                 .withIssuedAt(new Date())
@@ -59,7 +60,7 @@ public class JwtUtils {
                 .sign(algorithm);
         Token tokenEntity = Token.builder()
                 .token(token)
-                .user(user)
+                .username(username)
                 .isRefreshToken(false)
                 .isRevoked(false)
                 .issuedAt(LocalDateTime.now())
@@ -70,11 +71,10 @@ public class JwtUtils {
     }
     public String createRefreshToken(Authentication authentication) {
         Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
-        User user = (User) authentication.getPrincipal();
-
-        String refreshToken = JWT.create()
+            String username = authentication.getPrincipal().toString();
+             String refreshToken = JWT.create()
                 .withIssuer(this.userGenerator)
-                .withSubject(user.getEmail())
+                .withSubject(username)
                 .withClaim("type", "refreshToken")
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
@@ -84,7 +84,7 @@ public class JwtUtils {
 
         Token tokenEntity = Token.builder()
                 .token(refreshToken)
-                .user(user)
+                .username(username)
                 .isRefreshToken(true)
                 .isRevoked(false)
                 .issuedAt(LocalDateTime.now())

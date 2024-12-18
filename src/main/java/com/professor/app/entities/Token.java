@@ -22,8 +22,8 @@ public class Token {
 
     private String token;
 
-    @DBRef
-    private User user;
+
+    private String username;
 
     private boolean isRevoked;
 
