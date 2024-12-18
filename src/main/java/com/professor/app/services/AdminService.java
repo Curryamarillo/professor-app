@@ -10,8 +10,6 @@ import com.professor.app.mapper.UserMapper;
 import com.professor.app.repositories.UserRepository;
 import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

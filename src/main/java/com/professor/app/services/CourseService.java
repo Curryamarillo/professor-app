@@ -6,6 +6,7 @@ import com.professor.app.repositories.CourseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ public class CourseService {
                 .code(courseRequestDTO.code())
                 .name(courseRequestDTO.name())
                 .comments(courseRequestDTO.comments())
+                .createdAt(LocalDateTime.now())
                 .studentsId(courseRequestDTO.studentListId() != null ? courseRequestDTO.studentListId() : new HashSet<>())
                 .build();
 

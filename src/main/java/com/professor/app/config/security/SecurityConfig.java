@@ -1,5 +1,6 @@
 package com.professor.app.config.security;
 
+import com.professor.app.roles.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(new JwtValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(http -> {
                     http.requestMatchers("/swagger-ui/*").permitAll();
                     http.requestMatchers("/v3/api-docs/**").permitAll();
@@ -45,8 +48,6 @@ public class SecurityConfig {
                     http.requestMatchers(HttpMethod.GET, "/api/users").permitAll();
                     http.anyRequest().authenticated();
                 })
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(new JwtValidator(jwtUtils), BasicAuthenticationFilter.class)
                 .build();
     }
     @Bean
