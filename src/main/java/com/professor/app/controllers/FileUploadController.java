@@ -19,6 +19,7 @@ public class FileUploadController {
 
     private final StorageService storageService;
 
+    @Deprecated
     @GetMapping
     public ResponseEntity<List<String>> listUploadedFiles() {
         List<String> files = storageService.loadAll().map(
@@ -28,6 +29,7 @@ public class FileUploadController {
         return ResponseEntity.ok(files);
     }
 
+    @Deprecated
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         try {
@@ -45,6 +47,7 @@ public class FileUploadController {
         }
     }
 
+    @Deprecated
     @PostMapping
     public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {

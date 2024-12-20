@@ -6,8 +6,9 @@ import com.professor.app.exceptions.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -47,16 +48,21 @@ public class FileSystemStorageService implements  StorageService {
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file.");
             }
-            Path destinationFile = this.rootLocation.resolve(
+            String username = getUsername();
+            Path userDirectory = this.rootLocation.resolve(username);
+
+            Files.createDirectories(userDirectory);
+
+            Path destinationFile = userDirectory.resolve(
                             Paths.get(Objects.requireNonNull(file.getOriginalFilename())))
                     .normalize().toAbsolutePath();
-            if (!destinationFile.getParent().equals(this.rootLocation.toAbsolutePath())) {
+            if (!destinationFile.getParent().equals(userDirectory.toAbsolutePath())) {
                 throw new StorageException(
                         "Cannot store file outside current directory.");
             }
             String mimeType = file.getContentType();
 
-            if (storageProperties.getSUPPORTED_MIME_TYPES().contains(mimeType)) {
+            if (!storageProperties.getSUPPORTED_MIME_TYPES().contains(mimeType)) {
                 throw new UnsupportedOperationException("File type not supported: " + mimeType);
             }
 
@@ -72,10 +78,15 @@ public class FileSystemStorageService implements  StorageService {
 
     @Override
     public Stream<Path> loadAll() {
-        try (Stream<Path> stream = Files.walk(this.rootLocation, 1)) {
-            return stream
-                    .filter(path -> !path.equals(this.rootLocation))
-                    .map(this.rootLocation::relativize);
+        try {
+            String username =getUsername();
+            Path userDirectory = this.rootLocation.resolve(username);
+            try (Stream<Path> stream = Files.walk(userDirectory, 1)) {
+                return stream
+                        .filter(path -> !path.equals(userDirectory))
+                        .map(userDirectory::relativize);
+        }
+
         } catch (IOException e) {
             throw new StorageException("Failed to read stored files", e);
         }
@@ -84,7 +95,8 @@ public class FileSystemStorageService implements  StorageService {
 
     @Override
     public Path load(String filename) {
-        return rootLocation.resolve(filename);
+        String username = getUsername();
+        return rootLocation.resolve(username).resolve(filename);
     }
 
     @Override
@@ -108,8 +120,19 @@ public class FileSystemStorageService implements  StorageService {
 
     @Override
     public void deleteAll() {
-        FileSystemUtils.deleteRecursively(rootLocation.toFile());
+        try (Stream<Path> stream = Files.walk(this.rootLocation)) {
+            stream.map(Path::toFile)
+                    .forEach(file -> {
+                        if (!file.delete()) {
+                            throw new StorageException("Failed to delete file: " + file.getAbsolutePath());
+                        }
+                    });
+        } catch (IOException e) {
+            throw new StorageException("Could not delete files", e);
+        }
     }
+
+
 
     @Override
     public void init() {
@@ -119,5 +142,14 @@ public class FileSystemStorageService implements  StorageService {
         catch (IOException e) {
             throw new StorageException("Could not initialize storage", e);
         }
+    }
+
+    // Method to get username from Security Context
+    private String getUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new StorageException("User is not authenticated");
+        }
+        return authentication.getName();
     }
 }

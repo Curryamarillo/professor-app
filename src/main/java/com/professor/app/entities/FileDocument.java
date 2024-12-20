@@ -1,6 +1,7 @@
 package com.professor.app.entities;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Document(collection = "file_documents")
+@Builder
 public class FileDocument {
 
     @Id

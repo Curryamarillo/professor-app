@@ -7,6 +7,7 @@ import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.professor.app.entities.Token;
+import com.professor.app.entities.User;
 import com.professor.app.repositories.TokenRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -42,36 +43,43 @@ public class JwtUtils {
 
     public String createAuthToken(Authentication authentication) {
         Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
-        String username = authentication.getPrincipal().toString();
+        String username = null;
+        if (authentication.getPrincipal() instanceof User user) {
+            username = user.getEmail();
+        }
         String authorities = authentication.getAuthorities()
                 .stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
-        Object principal = authentication.getPrincipal();
-        System.out.println("Tipo de principal: " + principal.getClass().getName());
+
         String token = JWT.create()
                 .withIssuer(this.userGenerator)
                 .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withClaim("type", "authToken")
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis()+ AUTH_TOKEN_EXPIRATION_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + AUTH_TOKEN_EXPIRATION_TIME))
                 .withJWTId(UUID.randomUUID().toString())
                 .withNotBefore(new Date(System.currentTimeMillis()))
                 .sign(algorithm);
+
         Token tokenEntity = Token.builder()
                 .token(token)
                 .username(username)
-                .isRefreshToken(false)
+                .isRefreshToken(false) // Assuming this is not a refresh token
                 .isRevoked(false)
                 .issuedAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusSeconds(AUTH_TOKEN_EXPIRATION_TIME / 1000))
                 .build();
+
         tokenRepository.save(tokenEntity);
         return token;
     }
     public String createRefreshToken(Authentication authentication) {
         Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
-            String username = authentication.getPrincipal().toString();
+        String username = null;
+        if (authentication.getPrincipal() instanceof User user) {
+            username = user.getEmail();
+        }
              String refreshToken = JWT.create()
                 .withIssuer(this.userGenerator)
                 .withSubject(username)
